@@ -84,6 +84,7 @@
 - 用户希望“带着独立写”：先理解并逐段构建，最后仍要给出完整、可运行、经过验证的代码。
 - 用户要求每次完整课程或作业阶段的Markdown当次同步到GitHub，并给出真实commit，不接受只声称已经上传。
 - 用户本轮明确补充：后续先讲硬件知识、整体硬件结构、数据流和控制流，再分析逻辑、带写并给出代码。
+- 用户明确要求作业RTL使用Verilog，不使用SystemVerilog。后续文件统一使用`.v`，按Verilog-2005编译。
 
 ## 4. 已完成部分
 
@@ -135,7 +136,7 @@ RTL基础阶段94行仅完成地址前端与error，未实现仲裁。该历史�
 
 ## 5. 当前进度
 
-**第一题仲裁核心已完成，下一阶段是第一题正式Testbench与波形。** 不重写接口和地址前端，不再次讲解完整仲裁核心，也不跳到第二题或DMA/AXI。
+**第一题仲裁核心已完成；用户最新要求改用Verilog，下一阶段先做Verilog-2005等价迁移与复验，再进入正式Testbench与波形。** 不重写接口和地址前端，不再次讲解完整仲裁核心，也不跳到第二题或DMA/AXI。
 
 接手时先读：
 
@@ -144,23 +145,27 @@ RTL基础阶段94行仅完成地址前端与error，未实现仲裁。该历史�
 3. `assignments/assignment-01-bank-router/rtl/bank_access_router.sv`：133行当前RTL。
 4. `assignments/assignment-01-bank-router/checks/tb_arbitration_smoke.sv`。
 5. `assignments/assignment-01-bank-router/checks/arbitration-smoke-results.txt`。
+6. `docs/setup-vscode-verilog-environment.md`：最新Verilog-2005环境与语言约束。
 
 需要补基础语法时再读part-02，不从头重复。
 
-下一阶段按以下顺序：
+当前133行RTL和smoke Testbench是前一阶段生成的SystemVerilog文件。用户随后明确要求作业RTL使用Verilog，因此在正式T1～T11之前，必须先做一次**语言迁移但不改变硬件功能**：
 
-1. 先讲组合电路Testbench的硬件/验证位置：DUT输入驱动、输出观察、无功能时钟、刺激与稳定等待。
-2. 解释测试变量、扁平总线打包、期望输出、比较与失败信息。
-3. 从现有7组smoke检查出发，建立完整T1～T11自检，明确每项覆盖点。
-4. 测试期望不要简单复制一份DUT算法；覆盖边界63/64、所有请求者优先位置、独立Bank、不同冲突组合、读写路由与输入撤销。
-5. 实际运行iverilog和vvp，生成VCD；用GTKWave或等效方式读取实际波形，截图或导出并解释。
-6. 区分Testbench的#1稳定等待与硬件物理传播延迟。
-7. 保存完整Markdown、测试代码、真实日志与波形产物，提交main并报告真实commit。
-8. 第一题验证与成稿完成后，才进入第二题。
+1. 先解释`.sv`中的`logic`、`always_comb`、`parameter int`、块内`int`循环变量、unpacked数组与Verilog-2005写法的对应关系，说明语法迁移不改变比较器、匹配矩阵、优先选择链和多路器硬件。
+2. 把RTL迁移为`assignments/assignment-01-bank-router/rtl/bank_access_router.v`，使用`wire/reg`、`always @(*)`、`parameter integer`与过程块外声明的`integer`循环变量；必要时固定默认参数相关位宽，不能为了编译而改变既定接口语义。
+3. 把7组smoke检查迁移为`.v`，用系统Icarus Verilog 11.0执行`iverilog -g2005`和`vvp`，确认迁移前后的7组结果一致。
+4. 再讲组合电路Testbench的硬件/验证位置：DUT输入驱动、输出观察、无功能时钟、刺激与稳定等待。
+5. 解释测试变量、扁平总线打包、期望输出、比较与失败信息。
+6. 从现有7组smoke检查出发，建立完整T1～T11自检，明确每项覆盖点。
+7. 测试期望不要简单复制一份DUT算法；覆盖边界63/64、所有请求者优先位置、独立Bank、不同冲突组合、读写路由与输入撤销。
+8. 实际运行iverilog和vvp，生成VCD；用GTKWave或等效方式读取实际波形，截图或导出并解释。
+9. 区分Testbench的#1稳定等待与硬件物理传播延迟。
+10. 保存完整Markdown、测试代码、真实日志与波形产物，提交main并报告真实commit。
+11. 第一题验证与成稿完成后，才进入第二题。
 
 当前7组基础检查已覆盖无效越界、四Bank并行、四请求同Bank、部分冲突、63/64边界、非法高优先级不能获胜、req1胜req2与撤销输出；它们不等于已逐项完成正式T1～T11。
 
-临时Icarus 12.0工具本轮实际存在于`/tmp/npu-iverilog/usr/bin/`，编译使用`-B /tmp/npu-iverilog/usr/lib/x86_64-linux-gnu/ivl`；新会话仍须检查可用性，不能假设该临时目录永久保留。
+远端历史记录使用临时Icarus 12.0，目录为`/tmp/npu-iverilog/`，不能假设永久存在。当前电脑已经核对系统`/usr/bin/iverilog`为11.0 stable、`vvp`和GTKWave均可用；Verilog迁移与正式作业统一使用系统工具和`-g2005`。
 
 
 ## 6. 用到的资源文件
@@ -173,6 +178,7 @@ RTL基础阶段94行仅完成地址前端与error，未实现仲裁。该历史�
 - `docs/assignment-01-bank-router-part-01-spec.md`：规格。
 - `docs/assignment-01-bank-router-part-02-rtl-foundation.md`：地址前端历史阶段讲义。
 - `docs/assignment-01-bank-router-part-03-arbitration.md`：仲裁核心最新完整讲义。
+- `docs/setup-vscode-verilog-environment.md`：VS Code、Icarus、GTKWave与Verilog-2005环境指南。
 - `assignments/assignment-01-bank-router/rtl/bank_access_router.sv`：当前133行RTL。
 - `assignments/assignment-01-bank-router/checks/rtl-foundation-compile.txt`：历史基础阶段编译记录。
 - `assignments/assignment-01-bank-router/checks/tb_arbitration_smoke.sv`：167行基础自检代码。
@@ -180,8 +186,7 @@ RTL基础阶段94行仅完成地址前端与error，未实现仲裁。该历史�
 
 既有第01～06讲、GEMM后交接、Ping-Pong补充与复习文档继续保留，无需重讲。完整课程清单见4.1。
 
-后续需创建正式T1～T11 Testbench、VCD、实际波形说明和第一题作业成稿。
-
+后续需先把现有`.sv` RTL和smoke Testbench迁移为Verilog-2005 `.v`并复验，然后创建正式T1～T11 Testbench、VCD、实际波形说明和第一题作业成稿。迁移验证成功前保留历史`.sv`文件作为对照，不要直接删除。
 
 ### 6.2 tiny-NPU源码根目录
 
@@ -216,10 +221,11 @@ tiny-NPU工作树中已有用户的GEMM与仿真文件改动，以及`rtl/gemm/g
 1. **第一题规格（已完成）**：part-01。
 2. **第一题RTL基础（已完成）**：part-02与历史编译记录。
 3. **第一题仲裁核心（已完成）**：part-03、133行RTL、7/7基础自检，实际编译及vvp退出0；未生成VCD。
-4. **第一题正式Testbench与波形（下一步）**：补全T1～T11，实际仿真、生成VCD、观察并解释波形。
-5. **第一题作业成稿**：题目、思路、硬件结构、RTL、Testbench、真实波形和说明，满足学校模板要求。
-6. **第二题Tile Buffer**：完成第一题后再开始。复用已学基础，重点补齐原码next_tile_ready/tile_done占位行为所缺的安全切换协议，再写时序RTL和验证。
-7. **第三题ucode_fetch FSM**：完成第二题后开始。先硬件/PC/同步读/反压，画六状态图，再写代码与验证。
-8. **持续同步**：每个完整阶段在当次提交main，给短commit、完整commit、文件路径和真实验证范围。不要伪造波形或把有限用例通过表述为所有情况正确。
+4. **Verilog-2005迁移（下一步）**：保留硬件结构与接口语义，把当前`.sv` RTL和7组smoke检查迁移为`.v`，使用`iverilog -g2005`复验7/7。
+5. **第一题正式Testbench与波形**：补全T1～T11，实际仿真、生成VCD、观察并解释波形。
+6. **第一题作业成稿**：题目、思路、硬件结构、RTL、Testbench、真实波形和说明，满足学校模板要求。
+7. **第二题Tile Buffer**：完成第一题后再开始。复用已学基础，重点补齐原码next_tile_ready/tile_done占位行为所缺的安全切换协议，再写Verilog时序RTL和验证。
+8. **第三题ucode_fetch FSM**：完成第二题后开始。先硬件/PC/同步读/反压，画六状态图，再写Verilog代码与验证。
+9. **持续同步**：每个完整阶段在当次提交main，给短commit、完整commit、文件路径和真实验证范围。不要伪造波形或把有限用例通过表述为所有情况正确。
 
-新对话接手指令：**“读取GitHub仓库`Zenia-123/NPU_learing`的`HANDOFF.md`继续，按当前进度开始第一题正式Testbench与波形。”**
+新对话接手指令：**“读取GitHub仓库`Zenia-123/NPU_learing`的`HANDOFF.md`继续，先按最新要求把第一题迁移为Verilog-2005并复验，再做正式Testbench与波形。”**

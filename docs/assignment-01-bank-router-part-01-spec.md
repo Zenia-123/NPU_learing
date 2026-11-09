@@ -126,7 +126,7 @@ $$local\_addr=global\_addr[5:2]=\lfloor global\_addr/4\rfloor.$$
 
 ## 5. 参数、端口和中间变量
 
-为了让代码容易独立编译，作业模块不导入tiny-NPU的package。多组地址和数据建议使用扁平打包总线，在模块内部按请求号切片。
+为了让代码容易独立编译，作业模块不导入tiny-NPU的package。作业RTL统一采用Verilog-2005与`.v`后缀，不使用SystemVerilog的`logic`、`always_comb`或数组端口。多组地址和数据建议使用扁平打包总线，在模块内部按请求号切片。
 
 ### 5.1 输入端口
 
@@ -139,7 +139,7 @@ $$local\_addr=global\_addr[5:2]=\lfloor global\_addr/4\rfloor.$$
 
 以请求`r`为例：
 
-```systemverilog
+```verilog
 req_addr_r  = req_addr_flat [r*GLOBAL_ADDR_W +: GLOBAL_ADDR_W];
 req_wdata_r = req_wdata_flat[r*DATA_W        +: DATA_W];
 ```
@@ -303,7 +303,7 @@ Bank1同时收到req0和req1。由于req0优先级更高，输出为：
 
 ## 9. 为什么不会推断锁存器
 
-组合`always_comb`开始时要为所有输出和中间量设置默认值，然后只在候选获胜时覆盖对应字段。
+组合`always @(*)`过程块开始时要为所有输出和中间量设置默认值，然后只在候选获胜时覆盖对应字段。
 
 概念顺序：
 
@@ -323,12 +323,12 @@ Bank1同时收到req0和req1。由于req0优先级更高，输出为：
 1. 写模块名、参数和端口；
 2. 写派生常量：总容量、Bank选择位宽、局部地址位宽；
 3. 声明内部拆包数组和匹配矩阵；
-4. 在`always_comb`开头写完整默认值；
+4. 在`always @(*)`开头写完整默认值；
 5. 写四个请求的地址范围检查和地址拆分；
 6. 写每个Bank的候选统计；
 7. 写每个Bank的固定优先级选择；
 8. 写`grant/stall/error/conflict`；
-9. 用Icarus Verilog先做语法编译；
+9. 用`iverilog -g2005`先做语法编译；
 10. 再写自检Testbench，不靠肉眼单独判断正确性。
 
 ## 11. Testbench验证计划
