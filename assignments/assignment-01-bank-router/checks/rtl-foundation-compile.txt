@@ -1,0 +1,18 @@
+Date: 2026-11-09 (Asia/Shanghai)
+Scope: Stage 1 RTL syntax and elaboration, default parameters only.
+Tool: Icarus Verilog version 12.0 (stable)
+Working directory: NPU_learing repository root
+Command:
+/tmp/npu-iverilog/usr/bin/iverilog -B /tmp/npu-iverilog/usr/lib/x86_64-linux-gnu/ivl -g2012 -Wall -s bank_access_router -o /tmp/npu-iverilog/router-foundation.vvp assignments/assignment-01-bank-router/rtl/bank_access_router.sv
+
+Exit code: 0
+Compiler output:
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+
+No Testbench, functional simulation, VCD, synthesis, or timing analysis was run.
+Matching, arbitration, successful routing, grant, stall and conflict are incomplete.
+The temporary tool directory is environment-specific and is not committed.
+With a normal installation, use iverilog without the -B tool-directory override.
