@@ -191,8 +191,8 @@ tiny-NPU参考源码：
 
 - [ ] 尚未创建`/home/zenia/aiinfra/assignment/tile_buffer`实验目录；
 - [ ] 尚未由用户定义第二题最终端口和安全交换协议；
-- [ ] 尚未由用户亲自保存或编写Verilog RTL；助手已按用户直接要求在对话中提供一版基线RTL及解释，协议见`docs/assignment-02-tile-buffer-part-02-rtl-protocol.md`；
-- [ ] 尚未由用户编写Testbench；
+- [ ] 尚未由用户亲自保存或编写Verilog RTL；助手按用户直接要求提供并同步了一版参考基线RTL，路径为`assignments/assignment-02-tile-buffer/rtl/tile_buffer.v`，协议见`docs/assignment-02-tile-buffer-part-02-rtl-protocol.md`；
+- [ ] 尚未由用户亲自保存或编写Testbench；助手同步了一版参考Testbench，路径为`assignments/assignment-02-tile-buffer/tb/tile_buffer_tb.v`；
 - [ ] 尚未由用户执行编译、仿真或GTKWave；
 - [x] 第二题硬件第一讲已完成并保存为`docs/assignment-02-tile-buffer-part-01-hardware.md`，覆盖结构、变量、数据/控制流、逐沿读返回、安全交换与启动边界。
 - [x] 用户已要求采用并讲解一版基线协议：`dma_bootstrap`完成首块装载，`dma_wr_last`/`compute_rd_last`表示传输终点，`swap_req && tile_done && next_tile_ready`触发安全交换；说明见`docs/assignment-02-tile-buffer-part-02-rtl-protocol.md`。
@@ -239,6 +239,8 @@ find tile_buffer -maxdepth 2 -type d
 - `HANDOFF.md`：本交接文档；
 - `docs/assignment-02-tile-buffer-part-01-hardware.md`：第二题硬件第一讲；
 - `docs/assignment-02-tile-buffer-part-02-rtl-protocol.md`：第二题基线RTL协议与逐拍时序；
+- `assignments/assignment-02-tile-buffer/rtl/tile_buffer.v`：第二题参考基线RTL，尚未由用户执行；
+- `assignments/assignment-02-tile-buffer/tb/tile_buffer_tb.v`：第二题参考基线Testbench，尚未由用户执行；
 - `docs/assignment-01-bank-router-part-01-spec.md`：第一题规格；
 - `docs/assignment-01-bank-router-part-02-rtl-foundation.md`：第一题地址前端；
 - `docs/assignment-01-bank-router-part-03-arbitration.md`：第一题仲裁；
