@@ -107,87 +107,81 @@
 - [x] 已确认本机安装`Icarus Verilog 11.0`、`vvp`和`GTKWave`。
 - [x] 已完成第一题的需求、硬件结构、端口、中间信号、仲裁规则、边界条件和11项Testbench验证计划：`docs/assignment-01-bank-router-part-01-spec.md`。
 - [x] 第一题RTL基础讲义、94行阶段RTL与真实编译记录已完成；本次同步提交一并更新本交接文档。
+- [x] 第一题仲裁核心已完成：133行组合RTL、7组定向基础自检、实际Icarus Verilog 12.0编译与vvp运行全部退出0；完整T1～T11及VCD仍待后续。
 - [x] 第一题规格讲义已提交并推送，commit为`fe623b1d9f877856af5e50b6f9ab88d2bd6e5167`，远端`main`已核验指向该提交。
 
 ### 4.3 第一题已经固定的设计决定
 
-- 作业模块名：`bank_access_router`。
-- 纯组合电路，不含`clk`、复位、寄存器、锁存器和真正的SRAM数组。
-- 4个请求者、4个单端口Bank、每Bank深度16 word、每word 8 bit。
-- 全局地址宽度8 bit，但合法全局word地址只有0～63，地址64是首个越界值。
-- 低位交织：`bank_id = global_addr[1:0]`，`local_addr = global_addr >> 2`。
-- 每Bank独立固定优先级：`req0 > req1 > req2 > req3`。
-- 地址合法且获胜输出`grant`；合法但同Bank竞争失败输出`stall`；越界输出`error`。
-- 计划使用扁平打包端口，如`req_addr_flat`和`bank_addr_flat`，在模块内部切片。
-- 每Bank输出`en/we/local_addr/wdata/owner/conflict`。
-- 这是受`banked_sram`启发的教学扩展，不是把原`banked_sram`原样复制为组合题。
+- 模块名：`bank_access_router`。
+- 纯组合电路，无clk/rst、状态寄存器、锁存器或真正SRAM。
+- 默认4请求、4个单端口Bank、每Bank16word、每word8bit。
+- 全局word地址8bit，合法0～63；64为首个越界地址。
+- 低位交织：`bank_id=global_addr[1:0]`，`local_addr=global_addr>>2`。
+- 每Bank独立固定优先级：req0 > req1 > req2 > req3。
+- 合法获胜grant，合法失败stall，有效越界error；无效请求三者均0。
+- 读请求的Bank写数据输出固定0，禁用Bank所有字段默认0。
+- 扁平打包端口按请求号r拆包、按Bank号b打包，编号0占最低位段。
+- 每Bank输出en/we/local_addr/wdata/owner/conflict。
+- 教学扩展受banked_sram启发，不是原模块的原样复制。
 
-第一题RTL基础阶段已完成：新增模块框架、接口、默认赋值、输入拆包、完整地址检查、地址拆分与错误反馈。当前`match`和仲裁临时量仅清零，`req_grant/req_stall`及所有Bank输出仍为0，不能作为完整路由器使用。
+RTL基础阶段94行仅完成地址前端与error，未实现仲裁。该历史阶段编译记录保留在`rtl-foundation-compile.txt`，不代表当前源码仍不完整。
 
-已使用Icarus Verilog 12.0执行`iverilog -g2012 -Wall -s bank_access_router`语法与默认参数展开检查，退出码0；有4条`always_comb`常量取位敏感范围提示，详见编译记录。尚未创建Testbench或VCD，尚未运行功能仿真、综合或时序分析。不要把编译通过误报为仲裁功能验证通过。
+当前仲裁阶段源码133行，新增4×4候选矩阵、逐Bank重置临时量、候选统计、首候选优先、Bank输出选择、grant/stall/conflict。沿用原接口与地址前端，保留完整地址范围检查。
+
+本轮实际编译并运行了`checks/tb_arbitration_smoke.sv`，7组基础向量全部通过。单独RTL编译有6条Icarus常量取位敏感范围提示，测试编译还记录了timescale继承提示；所有命令退出0。完整日志在`checks/arbitration-smoke-results.txt`。
+
+没有运行完整T1～T11回归、没有生成VCD或波形截图，没有运行综合、锁存器形式证明或STA。不要把7组基础仿真升级表述为完整验证。
+
 
 ## 5. 当前进度
 
-当前已完成第一题第二篇“RTL基础与地址前端”，下一步是第一题仲裁核心，不要重写已完成的接口和地址前端，也不要直接进入第二题。
+**第一题仲裁核心已完成，下一阶段是第一题正式Testbench与波形。** 不重写接口和地址前端，不再次讲解完整仲裁核心，也不跳到第二题或DMA/AXI。
 
 接手时先读：
 
-1. `docs/assignment-01-bank-router-part-01-spec.md`。
-2. `docs/assignment-01-bank-router-part-02-rtl-foundation.md`。
-3. `assignments/assignment-01-bank-router/rtl/bank_access_router.sv`。
-4. `assignments/assignment-01-bank-router/checks/rtl-foundation-compile.txt`。
+1. `docs/assignment-01-bank-router-part-01-spec.md`：完整规格与T1～T11。
+2. `docs/assignment-01-bank-router-part-03-arbitration.md`：最新阶段讲义。
+3. `assignments/assignment-01-bank-router/rtl/bank_access_router.sv`：133行当前RTL。
+4. `assignments/assignment-01-bank-router/checks/tb_arbitration_smoke.sv`。
+5. `assignments/assignment-01-bank-router/checks/arbitration-smoke-results.txt`。
 
-本阶段源码共94行，已实现参数、扁平端口、派生常量、内部拆包数组、完整组合默认赋值、地址合法性比较、地址拆分与`req_error`。仅编译核验默认4请求/4Bank/每Bank16word/8bit数据/8bit全局地址配置。
+需要补基础语法时再读part-02，不从头重复。
 
-特别注意：地址64右移2位数学结果为16，但截成4bit局部信号后变为0。因此不能用截断后局部地址代替完整8bit地址的合法性判断。
+下一阶段按以下顺序：
 
-下一阶段必须按硬件到代码的顺序：
+1. 先讲组合电路Testbench的硬件/验证位置：DUT输入驱动、输出观察、无功能时钟、刺激与稳定等待。
+2. 解释测试变量、扁平总线打包、期望输出、比较与失败信息。
+3. 从现有7组smoke检查出发，建立完整T1～T11自检，明确每项覆盖点。
+4. 测试期望不要简单复制一份DUT算法；覆盖边界63/64、所有请求者优先位置、独立Bank、不同冲突组合、读写路由与输入撤销。
+5. 实际运行iverilog和vvp，生成VCD；用GTKWave或等效方式读取实际波形，截图或导出并解释。
+6. 区分Testbench的#1稳定等待与硬件物理传播延迟。
+7. 保存完整Markdown、测试代码、真实日志与波形产物，提交main并报告真实commit。
+8. 第一题验证与成稿完成后，才进入第二题。
 
-1. 先讲16个匹配条件如何构成4×4候选矩阵。
-2. 写`match[r][b] = req_valid[r] && addr_ok[r] && (req_bank[r] == b)`。
-3. 讲每个Bank独立的优先选择链，按req0→req3选择首个候选。
-4. 在每个Bank的组合处理起点重置`winner_found`和`candidate_count`，不能把前一个Bank的临时结果带进下一个Bank。
-5. 接出获胜者的en/we/local_addr/wdata/owner，读请求wdata按既定规则置0。
-6. 接出grant、stall和conflict，并保留完整默认赋值与越界错误处理。
-7. 实际编译；再做与该阶段范围一致的基础组合检查。
-8. 保存本阶段完整Markdown并提交推送到main，报告真实commit。
+当前7组基础检查已覆盖无效越界、四Bank并行、四请求同Bank、部分冲突、63/64边界、非法高优先级不能获胜、req1胜req2与撤销输出；它们不等于已逐项完成正式T1～T11。
 
-完整T1～T11自检Testbench与VCD仍在后续阶段。当前无Testbench、无波形，不能声称功能已验证。
+临时Icarus 12.0工具本轮实际存在于`/tmp/npu-iverilog/usr/bin/`，编译使用`-B /tmp/npu-iverilog/usr/lib/x86_64-linux-gnu/ivl`；新会话仍须检查可用性，不能假设该临时目录永久保留。
+
 
 ## 6. 用到的资源文件
 
 ### 6.1 `NPU_learing`仓库根目录
 
-已创建：
+最新文件：
 
-- `HANDOFF.md`：本交接文档。
-- `docs/assignment-01-bank-router-part-01-spec.md`：第一题完整设计规格。
-- `docs/assignment-01-bank-router-part-02-rtl-foundation.md`：RTL基础完整讲义与阶段源码。
-- `assignments/assignment-01-bank-router/rtl/bank_access_router.sv`：尚未实现仲裁的阶段RTL。
-- `assignments/assignment-01-bank-router/checks/rtl-foundation-compile.txt`：实际编译命令、退出码与提示。
+- `HANDOFF.md`：当前进度与下一步。
+- `docs/assignment-01-bank-router-part-01-spec.md`：规格。
+- `docs/assignment-01-bank-router-part-02-rtl-foundation.md`：地址前端历史阶段讲义。
+- `docs/assignment-01-bank-router-part-03-arbitration.md`：仲裁核心最新完整讲义。
+- `assignments/assignment-01-bank-router/rtl/bank_access_router.sv`：当前133行RTL。
+- `assignments/assignment-01-bank-router/checks/rtl-foundation-compile.txt`：历史基础阶段编译记录。
+- `assignments/assignment-01-bank-router/checks/tb_arbitration_smoke.sv`：167行基础自检代码。
+- `assignments/assignment-01-bank-router/checks/arbitration-smoke-results.txt`：实际编译及7/7结果。
 
-已存在并已读取：
+既有第01～06讲、GEMM后交接、Ping-Pong补充与复习文档继续保留，无需重讲。完整课程清单见4.1。
 
-- `docs/handoff-after-gemm-post-2026-10-31.md`：GEMM后课程边界。
-- `docs/lesson-01-overview.md`。
-- `docs/lesson-02-rtl-mac.md`。
-- `docs/lesson-03-pe-microarchitecture.md`。
-- `docs/lesson-04-systolic-array.md`。
-- `docs/lesson-05-gemm-code-walkthrough.md`。
-- `docs/lesson-05-gemm-controller-design-patterns.md`。
-- `docs/lesson-05-gemm-post.md`。
-- `docs/lesson-06-sram-bank-buffer.md`。
-- `docs/lesson-06-supplement-ping-pong-pipeline.md`。
-- `docs/review-gemm-before-memory-2026-11-06.md`。
+后续需创建正式T1～T11 Testbench、VCD、实际波形说明和第一题作业成稿。
 
-已修改：
-
-- `HANDOFF.md`：同步RTL基础阶段完成情况与下一步仲裁核心。
-
-需继续创建：
-
-- 仲裁核心的下一阶段讲义。
-- 后续的Testbench、仿真脚本或命令记录、VCD和波形解释文档。
 
 ### 6.2 tiny-NPU源码根目录
 
@@ -219,13 +213,13 @@ tiny-NPU工作树中已有用户的GEMM与仿真文件改动，以及`rtl/gemm/g
 
 ## 7. 需要交接的计划
 
-1. **第一题RTL基础（已完成）**：模块框架、参数、端口、内部信号、默认赋值、地址检查和拆分已写入阶段RTL；Icarus Verilog 12.0编译退出0，有已记录的敏感范围提示。本轮提交阶段讲义与编译记录。
-2. **第一题仲裁核心**：讲匹配矩阵与每Bank优先选择链的硬件实现，写默认赋值、候选统计、winner选择、Bank输出和`grant/stall/error/conflict`，防止锁存器；编译并做基础组合测试。
-3. **第一题Testbench**：先讲组合电路Testbench结构和自检思想，再实现规格中的T1～T11；运行`iverilog`与`vvp`，生成VCD，核对全部断言和关键波形。
-4. **第一题作业成稿**：把题目描述、解题思路、硬件结构、RTL、Testbench、波形截图和文字解释整理进学校模板需要的结构。不能伪造波形，截图必须来自实际仿真。
-5. **第二题Tile Buffer**：完成第一题后再开始。先复用已学的Ping-Pong基础，再重点分析原`tile_buffer.sv`中`tile_done`固定0、`next_tile_ready`仅翻转等占位行为，重新定义完整的安全切换协议，然后写时序RTL和验证。
-6. **第三题ucode_fetch FSM**：完成第二题后再开始。先讲指令存储、PC、同步读延迟和反压硬件，再画六状态图，最后逐段写状态寄存器、转移逻辑、输出逻辑和Testbench。
-7. **持续同步**：每个完整阶段都在同一轮提交并推送到`Zenia-123/NPU_learing/main`，在答复中同时给短commit、完整commit、文件路径和实际验证范围。
+1. **第一题规格（已完成）**：part-01。
+2. **第一题RTL基础（已完成）**：part-02与历史编译记录。
+3. **第一题仲裁核心（已完成）**：part-03、133行RTL、7/7基础自检，实际编译及vvp退出0；未生成VCD。
+4. **第一题正式Testbench与波形（下一步）**：补全T1～T11，实际仿真、生成VCD、观察并解释波形。
+5. **第一题作业成稿**：题目、思路、硬件结构、RTL、Testbench、真实波形和说明，满足学校模板要求。
+6. **第二题Tile Buffer**：完成第一题后再开始。复用已学基础，重点补齐原码next_tile_ready/tile_done占位行为所缺的安全切换协议，再写时序RTL和验证。
+7. **第三题ucode_fetch FSM**：完成第二题后开始。先硬件/PC/同步读/反压，画六状态图，再写代码与验证。
+8. **持续同步**：每个完整阶段在当次提交main，给短commit、完整commit、文件路径和真实验证范围。不要伪造波形或把有限用例通过表述为所有情况正确。
 
-新对话的用户只需说：**“读取GitHub仓库`Zenia-123/NPU_learing`的`HANDOFF.md`继续，按当前进度开始第一题仲裁核心。”**
-
+新对话接手指令：**“读取GitHub仓库`Zenia-123/NPU_learing`的`HANDOFF.md`继续，按当前进度开始第一题正式Testbench与波形。”**

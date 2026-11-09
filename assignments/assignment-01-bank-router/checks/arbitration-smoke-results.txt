@@ -1,0 +1,41 @@
+Date: 2026-11-09 (Asia/Shanghai)
+Scope: default-parameter compilation and seven directed arbitration smoke vectors.
+Tool: Icarus Verilog 12.0; local unpacked tool installation.
+
+Command: /tmp/npu-iverilog/usr/bin/iverilog -B /tmp/npu-iverilog/usr/lib/x86_64-linux-gnu/ivl -g2012 -Wall -s bank_access_router -o /tmp/router-arbitration.vvp assignments/assignment-01-bank-router/rtl/bank_access_router.sv
+Exit code: 0
+Output:
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+
+Command: /tmp/npu-iverilog/usr/bin/iverilog -B /tmp/npu-iverilog/usr/lib/x86_64-linux-gnu/ivl -g2012 -Wall -s tb_arbitration_smoke -o /tmp/router-arbitration-smoke.vvp assignments/assignment-01-bank-router/checks/tb_arbitration_smoke.sv assignments/assignment-01-bank-router/rtl/bank_access_router.sv
+Exit code: 0
+Output:
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:5: warning: timescale for bank_access_router inherited from another file.
+assignments/assignment-01-bank-router/checks/tb_arbitration_smoke.sv:1: ...: The inherited timescale is here.
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+assignments/assignment-01-bank-router/rtl/bank_access_router.sv:48: sorry: constant selects in always_* processes are not currently supported (all bits will be included).
+
+Command: /tmp/npu-iverilog/usr/bin/vvp /tmp/router-arbitration-smoke.vvp
+Exit code: 0
+Output:
+PASS S0 inactive out-of-range request
+PASS S1 four independent Banks
+PASS S2 four candidates on Bank1
+PASS S3 partial conflict and parallel routing
+PASS S4 address 63 accepted and 64 rejected
+PASS S5 invalid req0 cannot win; req1 beats req2
+PASS S6 outputs clear after active traffic
+PASS arbitration smoke: 7/7 vectors
+assignments/assignment-01-bank-router/checks/tb_arbitration_smoke.sv:165: $finish called at 7000 (1ps)
+
+No full T1-T11 regression, VCD, waveform screenshot, synthesis, latch proof, or timing analysis was performed.
+The #1 in the smoke test is a simulation settling delay, not a hardware propagation-delay measurement.

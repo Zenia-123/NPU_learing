@@ -1,5 +1,5 @@
-// Stage 1: interface, combinational defaults, unpacking and address decoding.
-// INCOMPLETE: no request-to-Bank matching, arbitration or successful routing yet.
+// Stage 2: address decoding, per-Bank fixed-priority arbitration and routing.
+// Pure combinational request front-end; SRAM and read-return paths are external.
 // Supported for this lesson: the default configuration below.
 // Future parameter changes require a separate width/range review.
 module bank_access_router #(
@@ -40,7 +40,7 @@ module bank_access_router #(
     logic [BANK_SEL_W-1:0]    req_bank       [0:N_REQ-1];
     logic [LOCAL_ADDR_W-1:0]  req_local_addr [0:N_REQ-1];
 
-    // Reserved for the arbitration lesson; held at zero in this stage.
+    // A requester is a candidate for exactly one Bank if valid and in range.
     logic match [0:N_REQ-1][0:N_BANKS-1];
     logic winner_found;
     integer candidate_count;
@@ -87,8 +87,48 @@ module bank_access_router #(
             req_error[r] = req_valid[r] && !addr_ok[r];
         end
 
-        // TODO next stage: match = valid && addr_ok && Bank equality.
-        // TODO next stage: per-Bank priority, output muxes, grant/stall/conflict.
-        // Current grant/stall and Bank outputs intentionally remain zero.
+        // Build all requester-to-Bank candidates before priority selection.
+        for (int r = 0; r < N_REQ; r = r + 1) begin
+            for (int b = 0; b < N_BANKS; b = b + 1) begin
+                match[r][b] = req_valid[r] && addr_ok[r] &&
+                              (req_bank[r] == b[BANK_SEL_W-1:0]);
+            end
+        end
+
+        // Each Bank independently chooses the lowest-numbered candidate.
+        // These are combinational temporaries, reset for EVERY Bank.
+        for (int b = 0; b < N_BANKS; b = b + 1) begin
+            winner_found    = 1'b0;
+            candidate_count = 0;
+
+            for (int r = 0; r < N_REQ; r = r + 1) begin
+                if (match[r][b]) begin
+                    // Count every candidate, including those that lose.
+                    candidate_count = candidate_count + 1;
+
+                    if (!winner_found) begin
+                        winner_found = 1'b1;
+                        req_grant[r] = 1'b1;
+                        bank_en[b]   = 1'b1;
+                        bank_we[b]   = req_we[r];
+                        bank_addr_flat[b*LOCAL_ADDR_W +: LOCAL_ADDR_W] =
+                            req_local_addr[r];
+                        bank_owner_flat[b*OWNER_W +: OWNER_W] =
+                            r[OWNER_W-1:0];
+                        // Read requests have a deterministic zero write bus.
+                        bank_wdata_flat[b*DATA_W +: DATA_W] =
+                            req_we[r] ? req_wdata[r] : '0;
+                    end
+                end
+            end
+
+            bank_conflict[b] = (candidate_count > 1);
+        end
+
+        // Only legal valid losers retry; invalid addresses report error.
+        for (int r = 0; r < N_REQ; r = r + 1) begin
+            req_stall[r] = req_valid[r] && addr_ok[r] && !req_grant[r];
+        end
     end
 endmodule
+
