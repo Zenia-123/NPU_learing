@@ -21,9 +21,15 @@
 
 ## 学习文档约定
 
-- `docs/` 存放分章节教学 Markdown。
+- `npu_docs/` 专门存放 tiny-NPU 项目主线讲义、补充、复习与交接，入口：[主线文档目录](npu_docs/README.md)。
+- `docs/assignment-*.md` 保留课程作业讲义；`assignments/` 保留作业代码、Testbench、日志与波形。
+- [HANDOFF.md](HANDOFF.md) 分别记录项目主线与开放作业支线；继续时依据用户指定方向选择。
 - 章节文件命名为 `lesson-01-overview.md`、`lesson-02-rtl-mac.md` 等。
 - `notes/` 可放个人实验日志、波形分析与问题记录。
 - 每讲说明对应的 tiny-NPU 源码路径、硬件设计意图、数据流/控制流、关键 RTL 语法、仿真与验证方法。
 
 每次生成教学文档时在当前对话中同步提交 GitHub，并提供提交后的文件链接；需要确保相关仓库的 GitHub 连接仍可用。
+
+## 当前主线进度
+
+第01～06讲及Ping-Pong补充已讲解；最新是[第07讲上：DMA与AXI读通路](npu_docs/lesson-07-dma-axi-read.md)。下一步为axi_dma_wr；详细停点见[主线交接](npu_docs/handoff-tiny-npu-mainline.md)。已讲解不等于用户已完全掌握。

@@ -1,9 +1,9 @@
 # tiny-NPU 学习交接摘要：第 03 讲结束
 
 ## 当前进度
-已完成第 01 讲项目总览与路线（`docs/lesson-01-overview.md`）、第 02 讲 MAC 流水与 SystemVerilog（`docs/lesson-02-rtl-mac.md`）、第 03 讲 PE 微架构和双精度 MAC（`docs/lesson-03-pe-microarchitecture.md`）。
+已完成第 01 讲项目总览与路线（`npu_docs/lesson-01-overview.md`）、第 02 讲 MAC 流水与 SystemVerilog（`npu_docs/lesson-02-rtl-mac.md`）、第 03 讲 PE 微架构和双精度 MAC（`npu_docs/lesson-03-pe-microarchitecture.md`）。
 
-教学风格：中文、先硬件和数据流再语法和源码、一次深入讲较多内容、不要重复/过多练习。每讲产出完整 Markdown 同步本仓库 `docs/`，当次用 GitHub connector 提交并报告 SHA。目标是从 NPU RTL 学到体系结构，再衔接 CIMFlow/MRAM-CIM。
+教学风格：中文、先硬件和数据流再语法和源码、一次深入讲较多内容、不要重复/过多练习。每讲产出完整 Markdown 同步本仓库 `npu_docs/`，当次用 GitHub connector 提交并报告 SHA。目标是从 NPU RTL 学到体系结构，再衔接 CIMFlow/MRAM-CIM。
 
 ## 已确认的真实代码结构
 上游仓库 <https://github.com/harishsg993010/tiny-NPU>，主要路径：
@@ -39,7 +39,7 @@ A=[[1,2],[3,4]], B=[[5,6],[7,8]]，C=[[19,22],[43,50]]。理想相对运算周�
 4. 分清理想模型 K+M+N−2 及实际 MAC / PIPE_STAGE / acc_valid 影响；
 5. 解释 `systolic_array.sv` 的 generate、a_wire/b_wire、a_pipe/b_pipe 和顶层调度；
 6. 映射不同形状 GEMM/GEMV、Tiling 与数据复用、后续 PE vs CIM 对比。
-最后生成**完整** `docs/lesson-04-systolic-array.md` 并同步 GitHub，附链接及真实提交 SHA。
+最后生成**完整** `npu_docs/lesson-04-systolic-array.md` 并同步 GitHub，附链接及真实提交 SHA。
 
 后续讲次：05 GEMM 控制/Tiling；06 SRAM；07 AXI/DMA；08 ISA；09 Scoreboard/Barrier；10 特殊算子；11 Transformer/KV Cache；12 ONNX Graph；13 仿真性能；14 CIMFlow/MRAM-CIM 研究衔接。
 

@@ -1,10 +1,44 @@
-# tiny-NPU开放作业与学习交接文档
+# tiny-NPU项目主线与开放作业交接文档
 
 更新日期：2026-11-09。
 
-本文件用于让新的Codex对话直接从GitHub接手。接手后无需翻阅旧对话，但必须完整读取本文件，并严格遵守“用户亲自编写和执行、Codex分步教学”的协作方式。
+本文件是tiny-NPU项目主线与开放作业支线的共同接手入口。接手后先读取第0节，按用户当前请求选择学习线；第1～7节保留开放作业的详细进度。实验仍遵守“用户亲自编写和执行、Codex分步教学”的协作方式。
 
-## 1. 总目标
+## 0. 最新决定、目录分工与主线停点
+
+用户2026-11-09最新明确要求：本对话回到tiny-NPU项目本身继续原计划；同意提交，并新建npu_docs专门保存tiny-NPU讲解，避免影响assignment部分。
+
+| 位置 | 内容与边界 |
+|---|---|
+| npu_docs/ | tiny-NPU第01～07讲、补充、复习、学习指南与主线交接；以后主线讲义统一放这里 |
+| docs/assignment-*.md | 开放作业讲义，维持现有路径和内容 |
+| assignments/ | 开放作业RTL、Testbench、日志和波形，维持现有路径和内容 |
+| docs/setup-vscode-verilog-environment.md | 既有环境指南，维持原位置 |
+| HANDOFF.md | 本共同入口；分别记录两条线，不用一条线的停点覆盖另一条 |
+
+本次将既有第01～06讲、Ping-Pong补充、GEMM复习、两个历史阶段交接及学习指南统一迁入npu_docs，并加入第07讲上半部分。目录入口：[npu_docs/README.md](npu_docs/README.md)。
+
+### 0.1 tiny-NPU项目主线
+
+- 已讲解第01～06讲及Ping-Pong补充；不等同于用户已经确认掌握，不从头重复。
+- 最新讲义：[第07讲上：DMA与AXI读通路](npu_docs/lesson-07-dma-axi-read.md)。
+- 已讲清axi_dma_rd的硬件结构、信号单位、VALID/READY、反压、burst拆分、4KiB边界、五状态FSM与源码推导时序。
+- 最后一项数据握手后，正常路径为RECV→CALC→DONE；读DMA内部无数据FIFO。
+- 128 bit读流还需本地适配才能写入8 bit SRAM，当前top.sv连接仍有占位；onnx_sim_top使用DMA Shim，不能当成本AXI DMA已仿真的证据。
+- 本讲未修改上游RTL，未运行HDL仿真或生成VCD；逐拍表为源码推导。
+- 用户有具体问题时先答；要求“下一讲/继续”时，默认进入第07讲下半部分axi_dma_wr，讲AW/W/B、WSTRB、WLAST与写响应；随后讲本地宽度适配和完成协议，再进入第08讲ISA/Fetch/Decode/Dispatch。
+- 详细主线交接：[npu_docs/handoff-tiny-npu-mainline.md](npu_docs/handoff-tiny-npu-mainline.md)。
+- 每讲遵守“硬件结构→变量含义与单位→数据/控制流→代码顺序与时序”；完整Markdown当次提交main/npu_docs并给真实commit。实验由用户亲自编写和执行，未经明确要求不代运行。
+
+### 0.2 开放作业支线
+
+作业进度独立保留在下文：第二实验硬件与基线协议已讲，仍待用户反馈目录创建、亲自保存代码和执行的结果。第一题已有资产保留，第三题不自动提前启动。主线DMA/AXI学习不等待三道作业完成，也不改变作业支线的用户执行要求。
+
+新对话接手主线时使用：
+
+“读取Zenia-123/NPU_learing的HANDOFF.md第0节及npu_docs/handoff-tiny-npu-mainline.md，继续tiny-NPU项目主线；第07讲上已讲，优先回答我的问题，无具体问题则继续axi_dma_wr，不进入assignment支线。”
+
+## 1. 开放作业支线总目标
 
 用户希望以tiny-NPU真实RTL为学习主线，完成三道相互独立的开放作业：
 
@@ -12,7 +46,7 @@
 2. 时序电路：双Bank乒乓Tile Buffer；
 3. 有限状态机：NPU微码指令读取控制器。
 
-每题都需要完成“题目设计→解题思路→硬件结构与工作原理→Verilog RTL→Testbench→用户亲自运行仿真→GTKWave波形→报告说明”的完整流程。三道作业完成后，再根据用户届时的掌握情况继续tiny-NPU课程，不回到GEMM重复学习。
+每题都需要完成“题目设计→解题思路→硬件结构与工作原理→Verilog RTL→Testbench→用户亲自运行仿真→GTKWave波形→报告说明”的完整流程。作业支线继续依次推进三道题；tiny-NPU项目主线已独立恢复，按第0节推进，不以作业全部完成为前置条件，也不回到GEMM重复学习。
 
 作业工作根目录：
 
@@ -28,9 +62,9 @@ tiny-NPU参考源码：
 
 远端仓库为`Zenia-123/NPU_learing`的`main`分支。
 
-## 2. 具体对话场景
+## 2. 开放作业支线对话场景
 
-### 2.1 当前任务已经切换到第二个实验
+### 2.1 作业支线已切换到第二个实验
 
 用户最新明确要求：暂停第一题后续截图和成稿，**直接进入第二个实验“双Bank乒乓Tile Buffer”**。
 
@@ -101,13 +135,13 @@ tiny-NPU参考源码：
 
 ### 4.1 已完成的tiny-NPU学习内容
 
-- [x] 整体架构：`docs/lesson-01-overview.md`
-- [x] RTL与INT8 MAC：`docs/lesson-02-rtl-mac.md`
-- [x] PE微结构：`docs/lesson-03-pe-microarchitecture.md`
-- [x] 脉动阵列：`docs/lesson-04-systolic-array.md`
-- [x] GEMM与`gemm_post`：`docs/lesson-05-*`
-- [x] SRAM、Bank与Buffer：`docs/lesson-06-sram-bank-buffer.md`
-- [x] Ping-Pong补充：`docs/lesson-06-supplement-ping-pong-pipeline.md`
+- [x] 整体架构：`npu_docs/lesson-01-overview.md`
+- [x] RTL与INT8 MAC：`npu_docs/lesson-02-rtl-mac.md`
+- [x] PE微结构：`npu_docs/lesson-03-pe-microarchitecture.md`
+- [x] 脉动阵列：`npu_docs/lesson-04-systolic-array.md`
+- [x] GEMM与`gemm_post`：`npu_docs/lesson-05-*`
+- [x] SRAM、Bank与Buffer：`npu_docs/lesson-06-sram-bank-buffer.md`
+- [x] Ping-Pong补充：`npu_docs/lesson-06-supplement-ping-pong-pipeline.md`
 
 以上课程不应从头重讲。第二题只在需要时引用关键结论。
 
@@ -166,7 +200,7 @@ tiny-NPU参考源码：
 
 不要声称用户已开始第二实验编码或验证。助手在本执行环境曾进行参考实现/检查，但它们未作为用户实验资产发布，也不计入用户进度；不得以此跳过用户的亲自编写和执行。
 
-## 5. 当前进度
+## 5. 开放作业支线当前进度
 
 第二题第一讲“硬件结构与逐沿时序”已完成，讲义：
 
@@ -194,7 +228,7 @@ find tile_buffer -maxdepth 2 -type d
 
 本篇用E0/E1明确同步读：E0采样请求，E0沿后输出寄存器更新，下游时序逻辑在E1捕获，避免“再额外加一拍”的歧义。最终tile_done的置位依据仍需共同选定。
 
-下一步用户还没写任何第二题RTL，不默认已经理解全部内容。第三题、DMA/AXI与第一题成稿都不自动提前启动。
+下一步用户还没写任何第二题RTL，不默认已经理解全部内容。作业支线不自动提前启动第三题或第一题成稿；DMA/AXI由独立项目主线推进，见第0节。
 
 ## 6. 用到的资源文件
 
@@ -245,8 +279,8 @@ find tile_buffer -maxdepth 2 -type d
 9. **用户亲自仿真和看波形**：给出`vvp`、VCD与GTKWave操作，由用户执行并描述结果。
 10. **第二题成稿**：整理题目、思路、硬件结构、RTL、Testbench和用户实际得到的波形。
 11. **第三题**：第二题由用户完成后再进入`ucode_fetch` FSM。
-12. **恢复tiny-NPU学习**：三道作业全部完成后再决定下一讲。
+12. **tiny-NPU项目主线**：已按用户最新要求独立恢复，进度见第0节与npu_docs/handoff-tiny-npu-mainline.md，不等待作业支线完成。
 
-新对话只需执行这条接手指令：
+继续开放作业支线时使用以下接手指令：
 
 **“读取GitHub仓库`Zenia-123/NPU_learing`的`HANDOFF.md`继续第二实验；硬件第一讲已讲，当前等待我反馈目录创建结果，再一起定义规格和端口，由我亲自写代码和运行。”**
