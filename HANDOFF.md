@@ -157,41 +157,43 @@ tiny-NPU参考源码：
 
 - [ ] 尚未创建`/home/zenia/aiinfra/assignment/tile_buffer`实验目录；
 - [ ] 尚未由用户定义第二题最终端口和安全交换协议；
-- [ ] 尚未编写Verilog RTL；
-- [ ] 尚未编写Testbench；
+- [ ] 尚未由用户编写Verilog RTL；
+- [ ] 尚未由用户编写Testbench；
 - [ ] 尚未由用户执行编译、仿真或GTKWave；
-- [ ] 尚未创建第二题正式讲义。
+- [x] 第二题硬件第一讲已完成并保存为`docs/assignment-02-tile-buffer-part-01-hardware.md`，覆盖结构、变量、数据/控制流、逐沿读返回、安全交换与启动边界。
+- [ ] 用户尚未反馈目录创建输出，参数、端口与最终协议尚未共同确认。
 
-不要声称第二实验已经开始编码或验证。
+不要声称用户已开始第二实验编码或验证。助手在本执行环境曾进行参考实现/检查，但它们未作为用户实验资产发布，也不计入用户进度；不得以此跳过用户的亲自编写和执行。
 
 ## 5. 当前进度
 
-当前主线已经切换到第二题“双Bank乒乓Tile Buffer”。
+第二题第一讲“硬件结构与逐沿时序”已完成，讲义：
 
-新对话接手后的第一项工作不是写代码，而是进行第二题第一讲，内容必须包括：
+`docs/assignment-02-tile-buffer-part-01-hardware.md`
 
-1. Tile Buffer在DMA与计算阵列之间的位置；
-2. 为什么单Bank会让“加载下一Tile”和“计算当前Tile”互相阻塞；
-3. 两个Bank的硬件实体，以及`active_bank`如何决定compute bank和prefetch bank；
-4. DMA写、计算同步读、Bank角色交换三条路径；
-5. 同步读的一拍延迟：在第N拍采样`compute_rd_en/addr`，第N+1拍`compute_rd_data`更新；
-6. 原`tile_buffer.sv`中`tile_done`和`next_tile_ready`为什么是占位逻辑；
-7. 安全交换必须满足的概念条件：
-   `swap_req && tile_done && next_tile_ready`；
-8. 讨论完成标志应如何产生：
-   - 预取侧可根据最后一个DMA地址写入产生`next_tile_ready`；
-   - 计算侧要考虑最后一次读请求与一拍后数据返回的对齐；
-   - 交换后两个完成标志应清除并开始下一轮；
-9. 明确本题是时序电路：包含时钟、低有效复位、两个存储Bank、Bank角色寄存器、同步读寄存器和完成标志寄存器。
-
-第一讲结束后，只让用户执行第一条准备命令，不要代执行：
+当前等待用户在自己的终端创建目录并反馈输出，不能代执行或提前给出完整RTL。
 
 ```bash
 cd /home/zenia/aiinfra/assignment
 mkdir -p tile_buffer/rtl tile_buffer/tb tile_buffer/build tile_buffer/waves
+pwd
+find tile_buffer -maxdepth 2 -type d
 ```
 
-用户贴出`pwd`和`find tile_buffer -maxdepth 2 -type d`结果后，再进入端口与规格设计。
+收到输出后，下一步只共同确定参数、端口和访问/交换协议：
+
+- 每Bank深度、数据宽度、tile是否固定大小；
+- 是否要求按顺序写/读一次，还是支持乱序/重复访问；
+- 写满如何证明：计数、外部完成或地址覆盖记录；
+- 最后读请求与最后返回接收如何对齐；
+- 是否增加读返回valid、请求ready、当前tile有效状态；
+- 首次启动无当前tile时怎样允许第一次交换；
+- 过早swap如何处理，成功交换沿是否接受读写；
+- 交换后准备/完成标志如何清除。
+
+本篇用E0/E1明确同步读：E0采样请求，E0沿后输出寄存器更新，下游时序逻辑在E1捕获，避免“再额外加一拍”的歧义。最终tile_done的置位依据仍需共同选定。
+
+下一步用户还没写任何第二题RTL，不默认已经理解全部内容。第三题、DMA/AXI与第一题成稿都不自动提前启动。
 
 ## 6. 用到的资源文件
 
@@ -200,6 +202,7 @@ mkdir -p tile_buffer/rtl tile_buffer/tb tile_buffer/build tile_buffer/waves
 ### 6.1 已创建或已修改
 
 - `HANDOFF.md`：本交接文档；
+- `docs/assignment-02-tile-buffer-part-01-hardware.md`：第二题硬件第一讲；
 - `docs/assignment-01-bank-router-part-01-spec.md`：第一题规格；
 - `docs/assignment-01-bank-router-part-02-rtl-foundation.md`：第一题地址前端；
 - `docs/assignment-01-bank-router-part-03-arbitration.md`：第一题仲裁；
@@ -231,8 +234,8 @@ mkdir -p tile_buffer/rtl tile_buffer/tb tile_buffer/build tile_buffer/waves
 
 ## 7. 需要交接的计划
 
-1. **第二题硬件第一讲**：按第5节列出的9项内容讲清模块位置、双Bank结构、数据/控制流和逐拍时序，不贴完整RTL。
-2. **用户创建目录**：只给命令，让用户执行并贴出结果；Codex不代执行。
+1. **第二题硬件第一讲（已完成）**：见`docs/assignment-02-tile-buffer-part-01-hardware.md`；用户尚未确认全部理解。
+2. **用户创建目录（当前等待）**：命令已给出，等用户贴出pwd与find结果；Codex不代执行。
 3. **共同定义需求**：逐项确定默认Bank深度、数据宽度、端口、完成条件、早到swap如何处理、交换后标志如何清除。
 4. **画周期表**：至少推导“DMA写满→下一Tile就绪”“最后一次计算读请求→数据返回→tile_done”“双方完成→安全交换”三个时间序列。
 5. **用户写RTL骨架**：先参数和端口，再存储Bank与状态寄存器；用户每写完一段，Codex只审查当前段。
@@ -246,4 +249,4 @@ mkdir -p tile_buffer/rtl tile_buffer/tb tile_buffer/build tile_buffer/waves
 
 新对话只需执行这条接手指令：
 
-**“读取GitHub仓库`Zenia-123/NPU_learing`的`HANDOFF.md`继续，直接进入第二实验Tile Buffer；先讲硬件结构和逐拍时序，由我亲自写代码和运行命令。”**
+**“读取GitHub仓库`Zenia-123/NPU_learing`的`HANDOFF.md`继续第二实验；硬件第一讲已讲，当前等待我反馈目录创建结果，再一起定义规格和端口，由我亲自写代码和运行。”**
