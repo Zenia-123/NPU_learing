@@ -1,0 +1,202 @@
+$date
+	Mon Nov  9 18:19:51 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module bank_access_router_t11_tb $end
+$var integer 32 ! current_test [31:0] $end
+$upscope $end
+$scope module bank_access_router_t11_tb $end
+$var reg 4 " req_valid [3:0] $end
+$upscope $end
+$scope module bank_access_router_t11_tb $end
+$var reg 4 # req_we [3:0] $end
+$upscope $end
+$scope module bank_access_router_t11_tb $end
+$var reg 32 $ req_addr_flat [31:0] $end
+$upscope $end
+$scope module bank_access_router_t11_tb $end
+$var reg 32 % req_wdata_flat [31:0] $end
+$upscope $end
+$scope module bank_access_router_t11_tb $end
+$var wire 4 & req_grant [3:0] $end
+$upscope $end
+$scope module bank_access_router_t11_tb $end
+$var wire 4 ' req_stall [3:0] $end
+$upscope $end
+$scope module bank_access_router_t11_tb $end
+$var wire 4 ( req_error [3:0] $end
+$upscope $end
+$scope module bank_access_router_t11_tb $end
+$var wire 4 ) bank_en [3:0] $end
+$upscope $end
+$scope module bank_access_router_t11_tb $end
+$var wire 4 * bank_we [3:0] $end
+$upscope $end
+$scope module bank_access_router_t11_tb $end
+$var wire 16 + bank_addr_flat [15:0] $end
+$upscope $end
+$scope module bank_access_router_t11_tb $end
+$var wire 32 , bank_wdata_flat [31:0] $end
+$upscope $end
+$scope module bank_access_router_t11_tb $end
+$var wire 8 - bank_owner_flat [7:0] $end
+$upscope $end
+$scope module bank_access_router_t11_tb $end
+$var wire 4 . bank_conflict [3:0] $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+b0 .
+b0 -
+b0 ,
+b0 +
+b0 *
+b0 )
+b0 (
+b0 '
+b0 &
+b0 %
+b0 $
+b0 #
+b0 "
+b1 !
+$end
+#1000
+b100000 -
+b10100000000 +
+b100 )
+b100 &
+b10 !
+b111011100000000000000000 %
+b101100000000000000000 $
+b100 "
+#2000
+b10100101 ,
+b1 *
+b11 -
+b111 +
+b1 )
+b1000 &
+b11 !
+b1000 #
+b10100101000000000000000000000000 %
+b11100000000000000000000000000 $
+b1000 "
+#3000
+b11100100 -
+b11010011000000001101000100000000 ,
+b100001100100001 +
+b1010 *
+b1111 )
+b1111 &
+b100 !
+b11010011111100101101000111110000 %
+b10011000011100000100100000100 $
+b1010 #
+b1111 "
+#4000
+b1000 '
+b100 .
+b10000 -
+b101100010000000000000000 ,
+b100000000 +
+b100 *
+b100 )
+b10 &
+b101 !
+b11110011000000001011000100000000 %
+b10010000000000000011000000000 $
+b10 #
+b1010 "
+#5000
+b10 .
+b0 -
+b0 ,
+b0 +
+b0 *
+b10 )
+b1110 '
+b1 &
+b110 !
+b10100011101000101010000110100000 %
+b1101000010010000010100000001 $
+b1010 #
+b1111 "
+#6000
+b10000000 -
+b1111000000000000 +
+b0 .
+b1000 )
+b0 '
+b100 &
+b111 !
+b111111110000000000000000 %
+b1111110000000000000000 $
+b0 #
+b100 "
+#7000
+b10 (
+b0 -
+b0 +
+b0 )
+b0 &
+b1000 !
+b10 #
+b1000100000000000 %
+b100000000000000 $
+b10 "
+#8000
+b0 (
+b1001 !
+b10011001000000000000000000000000 %
+b11111111000000000000000000000000 $
+b1000 #
+b0 "
+#9000
+b100 '
+b1 .
+b10001 ,
+b11000001 -
+b100000000000010 +
+b1 *
+b1001 )
+b1010 &
+b1 (
+b1010 !
+b1111 "
+b11110011001000100001000111111111 %
+b10011000011000000100001000000 $
+b111 #
+#10000
+b1 .
+b0 -
+b10000 ,
+b0 +
+b1 *
+b1 )
+b0 (
+b1110 '
+b1 &
+b10011000100100001000100010000 %
+b1100000010000000010000000000 $
+b1111 #
+b1111 "
+b1011 !
+#11000
+b0 .
+b0 ,
+b0 *
+b0 )
+b0 '
+b0 &
+b0 %
+b0 $
+b0 #
+b0 "
+#12000

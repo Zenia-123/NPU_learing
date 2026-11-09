@@ -34,9 +34,9 @@
 
 用户已确认，本次三道作业的统一根目录是：
 
-`/home/zenia/aiinfra/npu/NPU_learing/assignments`
+`/home/zenia/aiinfra/assignment`
 
-第一题、第二题和第三题的RTL、Testbench、仿真产物与作业材料都放在该目录各自的子目录中。`/home/zenia/aiinfra/npu/tiny-NPU`只作为原始项目的学习与设计参考，不直接写入作业代码；`NPU_learing/docs`用于保存阶段讲义、环境说明和交接文档。
+第一题、第二题和第三题的工作版RTL、Testbench、仿真产物与作业材料都放在该独立目录中。`/home/zenia/aiinfra/npu/tiny-NPU`只作为原始项目的学习与设计参考，不直接写入作业代码。每个完成阶段再把代码、讲义、日志和必要波形镜像到`NPU_learing`仓库并推送GitHub；仓库中的`assignments`是同步副本，不再作为本机主要工作目录。
 
 ### 2.3 三道题最终选型
 
@@ -50,7 +50,7 @@
 
 用户明确要求先不写GEMM部分，因为GEMM已经学习过。不要把`gemm_ctrl`、`gemm_post`、PE或脉动阵列选为这三道作业。
 
-### 2.3 学校模板的硬要求
+### 2.4 学校模板的硬要求
 
 正式附件是`数字大规模集成电路-开放作业-学号-姓名.docx`；名称以`.~`开头的162字节文件只是Word临时锁文件，不能作为模板正文。
 
@@ -120,6 +120,7 @@
 - [x] 第一题RTL基础讲义、94行阶段RTL与真实编译记录已完成；本次同步提交一并更新本交接文档。
 - [x] 第一题仲裁核心已完成：133行组合RTL、7组定向基础自检、实际Icarus Verilog 12.0编译与vvp运行全部退出0；完整T1～T11及VCD仍待后续。
 - [x] 第一题已迁移为Verilog-2005：133行`.v` RTL与206行`.v`基础Testbench使用系统Icarus Verilog 11.0、`iverilog -g2005`复验7/7通过；迁移讲义为part-04。
+- [x] 用户在`/home/zenia/aiinfra/assignment`中重写的RTL已完成真实错误修正，smoke测试7/7通过；正式T1～T11自检11/11通过，并生成约3.0 KiB的实际VCD。
 - [x] 第一题规格讲义已提交并推送，commit为`fe623b1d9f877856af5e50b6f9ab88d2bd6e5167`，远端`main`已核验指向该提交。
 
 ### 4.3 第一题已经固定的设计决定
@@ -142,35 +143,32 @@ RTL基础阶段94行仅完成地址前端与error，未实现仲裁。该历史�
 
 Verilog迁移实际编译并运行了`checks/tb_arbitration_smoke.v`，7组基础向量全部通过。系统Icarus Verilog 11.0在`-Wall`下提示`@(*)`敏感于数组全部元素，这是敏感列表展开信息，不是编译错误。完整记录在`checks/arbitration-smoke-verilog-results.txt`；历史`.sv`源码与历史日志只作为迁移对照保留。
 
-没有运行完整T1～T11回归、没有生成VCD或波形截图，没有运行综合、锁存器形式证明或STA。不要把7组基础仿真升级表述为完整验证。
+已运行完整T1～T11定向回归并生成VCD，覆盖单读、单写、四Bank并行、两请求及四请求冲突、63/64边界、无效越界、混合合法/越界与输入撤销。尚未整理GTKWave正式截图，也没有运行综合、锁存器形式证明或STA。不要把11组定向测试升级表述为穷举证明。
 
 
 ## 5. 当前进度
 
-**第一题仲裁核心及Verilog-2005等价迁移已完成，下一阶段是正式T1～T11 Testbench与波形。** 不重写接口和地址前端，不再次迁移语言，不跳到第二题或DMA/AXI。
+**第一题仲裁核心、Verilog-2005迁移、正式T1～T11和VCD生成均已完成；下一阶段是GTKWave正式截图、波形说明与第一题作业成稿。** 不重写接口和地址前端，不再次迁移语言，不跳到第二题或DMA/AXI。
 
 接手时先读：
 
 1. `docs/assignment-01-bank-router-part-01-spec.md`：完整规格与T1～T11。
-2. `docs/assignment-01-bank-router-part-04-verilog-migration.md`：当前最新阶段讲义。
-3. `assignments/assignment-01-bank-router/rtl/bank_access_router.v`：133行当前正式RTL。
-4. `assignments/assignment-01-bank-router/checks/tb_arbitration_smoke.v`：206行Verilog基础自检。
-5. `assignments/assignment-01-bank-router/checks/arbitration-smoke-verilog-results.txt`：系统Icarus 11.0的7/7记录。
-6. `docs/assignment-01-bank-router-part-01-spec.md`中的T1～T11计划。
+2. `docs/assignment-01-bank-router-part-05-t11-waveform.md`：当前最新阶段讲义、命令和错误修正记录。
+3. `/home/zenia/aiinfra/assignment/bank_router/rtl/bank_access_router.v`：用户当前工作版RTL。
+4. `/home/zenia/aiinfra/assignment/bank_router/tb/bank_access_router_t11_tb.v`：正式T1～T11 Testbench。
+5. `/home/zenia/aiinfra/assignment/bank_router/waves/bank_router_t11.vcd`：实际生成的波形。
+6. `assignments/assignment-01-bank-router/checks/t11-verification-results.txt`：系统Icarus 11.0的11/11记录。
 7. `docs/setup-vscode-verilog-environment.md`：Verilog-2005环境与语言约束。
 
 需要补基础语法时再读part-02，不从头重复。
 
-Verilog迁移已经完成，不要重复。下一阶段按以下顺序推进：
+Verilog迁移、正式Testbench和VCD已经完成，不要重复。下一阶段按以下顺序推进：
 
-1. 先讲组合电路Testbench在验证环境中的位置：DUT输入驱动、输出观察、无功能时钟、刺激与稳定等待。
-2. 解释正式测试变量、扁平总线打包、期望输出、比较与失败信息。
-3. 从现有7组smoke检查出发，建立完整T1～T11自检，明确每项覆盖点。
-4. 测试期望不要简单复制一份DUT算法；覆盖边界63/64、所有请求者优先位置、独立Bank、不同冲突组合、读写路由与输入撤销。
-5. 实际运行`iverilog -g2005`和`vvp`，生成VCD；用GTKWave或等效方式读取实际波形并解释。
-6. 区分Testbench的`#1`稳定等待与硬件物理传播延迟。
-7. 保存完整Markdown、测试代码、真实日志与波形产物，提交main并报告真实commit。
-8. 第一题验证与成稿完成后，才进入第二题。
+1. 从`/home/zenia/aiinfra/assignment`打开`bank_router/waves/bank_router_t11.vcd`。
+2. 整理GTKWave信号布局，重点截取T5、T8、T11三个窗口。
+3. 为每张图解释输入、Bank选择、仲裁结果、数据路由和反馈语义。
+4. 把题目、解题思路、硬件结构、RTL、Testbench、11/11日志和真实波形排入学校Word模板。
+5. 第一题成稿完成后，才进入第二题。
 
 当前7组基础检查已覆盖无效越界、四Bank并行、四请求同Bank、部分冲突、63/64边界、非法高优先级不能获胜、req1胜req2与撤销输出；它们不等于已逐项完成正式T1～T11。
 
@@ -188,16 +186,20 @@ Verilog迁移已经完成，不要重复。下一阶段按以下顺序推进：
 - `docs/assignment-01-bank-router-part-02-rtl-foundation.md`：地址前端历史阶段讲义。
 - `docs/assignment-01-bank-router-part-03-arbitration.md`：仲裁核心最新完整讲义。
 - `docs/assignment-01-bank-router-part-04-verilog-migration.md`：Verilog-2005迁移与7/7复验讲义。
+- `docs/assignment-01-bank-router-part-05-t11-waveform.md`：独立目录错误修正、终端命令、T1～T11与VCD讲义。
 - `docs/setup-vscode-verilog-environment.md`：VS Code、Icarus、GTKWave与Verilog-2005环境指南。
 - `assignments/assignment-01-bank-router/rtl/bank_access_router.v`：当前133行正式Verilog-2005 RTL。
 - `assignments/assignment-01-bank-router/checks/rtl-foundation-compile.txt`：历史基础阶段编译记录。
 - `assignments/assignment-01-bank-router/checks/tb_arbitration_smoke.v`：206行Verilog-2005基础自检代码。
 - `assignments/assignment-01-bank-router/checks/arbitration-smoke-verilog-results.txt`：系统Icarus 11.0实际编译及7/7结果。
+- `assignments/assignment-01-bank-router/tb/bank_access_router_t11_tb.v`：正式T1～T11自检代码。
+- `assignments/assignment-01-bank-router/checks/t11-verification-results.txt`：实际11/11结果与验证边界。
+- `assignments/assignment-01-bank-router/waves/bank_router_t11.vcd`：实际生成的VCD同步副本。
 - 历史`.sv` RTL、smoke Testbench与旧日志保留作迁移对照，不再作为正式作业入口。
 
 既有第01～06讲、GEMM后交接、Ping-Pong补充与复习文档继续保留，无需重讲。完整课程清单见4.1。
 
-后续直接基于`.v`版本创建正式T1～T11 Testbench、VCD、实际波形说明和第一题作业成稿。历史`.sv`文件继续保留作为对照，不要直接删除。
+后续直接基于已生成的VCD完成GTKWave截图、实际波形说明和第一题作业成稿。历史`.sv`文件继续保留作为对照，不要直接删除。
 
 ### 6.2 tiny-NPU源码根目录
 
@@ -219,7 +221,7 @@ Verilog迁移已经完成，不要重复。下一阶段按以下顺序推进：
 - `rtl/bus/axi_dma_wr.sv`。
 - `rtl/gemm/gemm_post.sv`仅用于排除GEMM候选，不作为作业继续方向。
 
-tiny-NPU工作树中已有用户的GEMM与仿真文件改动，以及`rtl/gemm/gemm_post copy.sv`未跟踪文件。它们不是本作业产生的改动，必须保留，不要重置、覆盖或顺手提交。当前作业代码应写入`NPU_learing`仓库，而不是修改上游tiny-NPU RTL。
+tiny-NPU工作树中已有用户的GEMM与仿真文件改动，以及`rtl/gemm/gemm_post copy.sv`未跟踪文件。它们不是本作业产生的改动，必须保留，不要重置、覆盖或顺手提交。当前作业代码应写入`/home/zenia/aiinfra/assignment`，完成阶段再镜像到`NPU_learing`，不要修改上游tiny-NPU RTL。
 
 ### 6.3 外部附件
 
@@ -235,11 +237,11 @@ tiny-NPU工作树中已有用户的GEMM与仿真文件改动，以及`rtl/gemm/g
 2. **第一题RTL基础（已完成）**：part-02与历史编译记录。
 3. **第一题仲裁核心（已完成）**：part-03、133行RTL、7/7基础自检，实际编译及vvp退出0；未生成VCD。
 4. **Verilog-2005迁移（已完成）**：`.v` RTL与smoke Testbench使用系统Icarus 11.0、`iverilog -g2005`复验7/7。
-5. **第一题正式Testbench与波形（下一步）**：补全T1～T11，实际仿真、生成VCD、观察并解释波形。
-6. **第一题作业成稿**：题目、思路、硬件结构、RTL、Testbench、真实波形和说明，满足学校模板要求。
+5. **第一题正式Testbench与VCD（已完成）**：T1～T11实际11/11通过，VCD已生成并检查关键信号变化。
+6. **第一题波形截图与作业成稿（下一步）**：整理GTKWave的T5、T8、T11窗口，把题目、思路、硬件结构、RTL、Testbench、真实波形和说明写入学校模板。
 7. **第二题Tile Buffer**：完成第一题后再开始。复用已学基础，重点补齐原码next_tile_ready/tile_done占位行为所缺的安全切换协议，再写Verilog时序RTL和验证。
 8. **第三题ucode_fetch FSM**：完成第二题后开始。先硬件/PC/同步读/反压，画六状态图，再写Verilog代码与验证。
 9. **恢复tiny-NPU学习**：只在三道作业全部完成后进行；先核对用户届时掌握情况，再确定下一讲，不默认从旧课程重新开始。
 10. **持续同步**：每个完整阶段在当次提交main，给短commit、完整commit、文件路径和真实验证范围。不要伪造波形或把有限用例通过表述为所有情况正确。
 
-新对话接手指令：**“读取GitHub仓库`Zenia-123/NPU_learing`的`HANDOFF.md`继续；Verilog-2005迁移已完成，下一步带我完成第一题正式T1～T11 Testbench、VCD波形与解释。”**
+新对话接手指令：**“读取GitHub仓库`Zenia-123/NPU_learing`的`HANDOFF.md`继续；第一题T1～T11和VCD已完成，工作目录是`/home/zenia/aiinfra/assignment`，下一步带我整理GTKWave截图并完成第一题作业成稿。”**

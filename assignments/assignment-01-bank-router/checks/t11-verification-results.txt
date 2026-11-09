@@ -1,0 +1,36 @@
+T1-T11 bank router verification
+Date: 2026-11-09
+Tool: Icarus Verilog 11.0 stable
+Mode: Verilog-2005
+
+Compile:
+iverilog -g2005 -Wall -s bank_access_router_t11_tb -o bank_router/build/bank_router_t11_sim.vvp bank_router/rtl/bank_access_router.v bank_router/tb/bank_access_router_t11_tb.v
+
+Run:
+vvp bank_router/build/bank_router_t11_sim.vvp
+
+Observed output:
+PASS T1 all requests invalid
+PASS T2 single legal read
+PASS T3 single legal write
+PASS T4 four requests on different Banks
+PASS T5 two requests on one Bank
+PASS T6 four requests on one Bank
+PASS T7 address 63 boundary
+PASS T8 address 64 out of range
+PASS T9 inactive out-of-range address
+PASS T10 one invalid plus three legal requests
+PASS T11 outputs clear after changing inputs
+RESULT PASS T1-T11: 11/11 tests
+
+Generated waveform:
+/home/zenia/aiinfra/assignment/bank_router/waves/bank_router_t11.vcd
+Size observed after run: approximately 3.0 KiB.
+
+Compiler notes:
+Icarus reported that always @(*) is sensitive to all four words in several
+internal arrays. These are sensitivity-expansion warnings, not compile errors.
+
+Scope:
+Default 4-requester/4-Bank configuration only. Directed T1-T11 regression,
+not exhaustive proof, synthesis, gate-level simulation, or timing analysis.
