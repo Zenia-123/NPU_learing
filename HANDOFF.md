@@ -1,247 +1,249 @@
-# tiny-NPU学习与开放作业交接文档
+# tiny-NPU开放作业与学习交接文档
 
 更新日期：2026-11-09。
 
-本文件用于让新的Codex对话直接从GitHub接手，不需要读取旧聊天记录。接手后应先完整读取本文件，再读取“当前进度”指定的讲义，不要重新选题或从GEMM开头复习。
+本文件用于让新的Codex对话直接从GitHub接手。接手后无需翻阅旧对话，但必须完整读取本文件，并严格遵守“用户亲自编写和执行、Codex分步教学”的协作方式。
 
 ## 1. 总目标
 
-用户希望以tiny-NPU真实RTL为学习主线，完成《数字大规模集成电路：设计与实践》开放作业的三道独立题目，分别对应组合电路、时序电路和有限状态机。每道题都要完成“题目设计→解题思路→硬件结构与工作原理→RTL代码→Testbench→实际仿真→波形解释”的完整流程，同时借此继续理解NPU的存储系统、数据通路和控制通路。
+用户希望以tiny-NPU真实RTL为学习主线，完成三道相互独立的开放作业：
 
-最终作业要符合学校模板的电路类型、代码工作量、边界条件、注释、状态图和波形说明要求；学习过程中的每次完整讲解继续保存为Markdown，并在当次推送到`Zenia-123/NPU_learing`仓库`main`分支，报告真实commit。
+1. 组合电路：多Bank SRAM访问路由与冲突仲裁器；
+2. 时序电路：双Bank乒乓Tile Buffer；
+3. 有限状态机：NPU微码指令读取控制器。
 
-当前优先级已经固定：**先完整完成三道开放作业，再根据用户当时的掌握进度继续tiny-NPU课程**。作业尚未完成期间，不主动开启新的tiny-NPU课程，也不重复已经完成的GEMM、SRAM、Bank、Buffer或Ping-Pong基础内容。
+每题都需要完成“题目设计→解题思路→硬件结构与工作原理→Verilog RTL→Testbench→用户亲自运行仿真→GTKWave波形→报告说明”的完整流程。三道作业完成后，再根据用户届时的掌握情况继续tiny-NPU课程，不回到GEMM重复学习。
 
-## 2. 具体对话场景
-
-此前用户已经系统学习tiny-NPU的INT8 MAC、PE、脉动阵列、GEMM控制器、`gemm_post`、SRAM、Bank、Buffer和Ping-Pong双缓冲。现在的任务不是继续精读GEMM，而是把NPU模块改造成三道课程作业，并由Codex带着用户逐步完成设计、代码和验证。
-
-### 2.1 后续讲解的固定顺序
-
-用户最新明确要求，后续每个模块必须按照以下顺序推进：
-
-1. **硬件知识与模块位置**：先说明该模块解决什么硬件问题，在NPU中的位置，以及它与上游、下游、存储体和控制器的关系。
-2. **整体硬件结构**：画出或文字说明实际需要哪些组合逻辑、寄存器、存储体、仲裁器、多路器和接口。
-3. **变量含义与单位**：逐项说明信号宽度、物理意义、地址单位、数据单位、有效周期和生命周期。
-4. **数据流与控制流**：分别讲数据从哪里来、到哪里去，以及控制条件如何决定路由、等待、授权或状态转移。
-5. **逻辑分析**：推导地址映射、边界条件、优先级、握手或状态跳转，明确同拍和跨拍行为。
-6. **带着用户写代码**：按模块声明、参数、端口、中间信号、核心逻辑的顺序逐段写，不要一开始只扔出完整答案。
-7. **给出可运行代码并验证**：形成完整RTL和Testbench，实际运行Icarus Verilog，生成VCD，用GTKWave或等效方式检查波形，并写波形解释。
-
-讲解需坚持“硬件结构→变量含义与单位→数据/控制流→代码顺序与时序”。不能只做语法翻译，也不能在没有解释硬件的情况下直接贴代码。
-
-### 2.2 作业目录边界
-
-用户已确认，本次三道作业的统一根目录是：
+作业工作根目录：
 
 `/home/zenia/aiinfra/assignment`
 
-第一题、第二题和第三题的工作版RTL、Testbench、仿真产物与作业材料都放在该独立目录中。`/home/zenia/aiinfra/npu/tiny-NPU`只作为原始项目的学习与设计参考，不直接写入作业代码。每个完成阶段再把代码、讲义、日志和必要波形镜像到`NPU_learing`仓库并推送GitHub；仓库中的`assignments`是同步副本，不再作为本机主要工作目录。
+tiny-NPU参考源码：
 
-### 2.3 三道题最终选型
+`/home/zenia/aiinfra/npu/tiny-NPU`
 
-已经确定选题，不要重新比较或改回GEMM：
+阶段讲义和GitHub同步仓库：
 
-| 作业类型 | 题目 | tiny-NPU来源 | 主要学习内容 |
-|---|---|---|---|
-| 组合电路 | 多Bank SRAM访问路由与冲突仲裁器 | `rtl/mem/banked_sram.sv`的Bank选择思想 | 地址交织、Bank匹配、并行路由、固定优先级、冲突与阻塞 |
-| 时序电路 | 双Bank乒乓Tile Buffer | `rtl/mem/tile_buffer.sv` | 存储阵列、同步读写、一拍读延迟、Bank角色寄存器、安全切换 |
-| 有限状态机 | NPU微码指令读取控制器 | `rtl/ctrl/ucode_fetch.sv` | 指令SRAM读取、PC、读延迟、valid/ready反压、六状态FSM |
+`/home/zenia/aiinfra/npu/NPU_learing`
 
-用户明确要求先不写GEMM部分，因为GEMM已经学习过。不要把`gemm_ctrl`、`gemm_post`、PE或脉动阵列选为这三道作业。
+远端仓库为`Zenia-123/NPU_learing`的`main`分支。
 
-### 2.4 学校模板的硬要求
+## 2. 具体对话场景
 
-正式附件是`数字大规模集成电路-开放作业-学号-姓名.docx`；名称以`.~`开头的162字节文件只是Word临时锁文件，不能作为模板正文。
+### 2.1 当前任务已经切换到第二个实验
 
-三题共同要求：
+用户最新明确要求：暂停第一题后续截图和成稿，**直接进入第二个实验“双Bank乒乓Tile Buffer”**。
 
-- 每题独立完成题目描述、解题思路、RTL、Testbench和仿真波形；
-- RTL与Testbench核心代码需要注释；
-- 波形图必须有文字解释；
-- 推荐ModelSim或Icarus Verilog；
-- 用户已说明不用让“禁止抄袭”条款影响选题，可以直接以项目模块为主线。
+第二题参考tiny-NPU固定版本`8216c22b762011aa20c05fc2768423fd12dda59d`中的：
 
-组合电路题：
+`rtl/mem/tile_buffer.sv`
 
-- 必须有实际应用场景；
-- 不能只是简单算术、4位及以上编码/译码、数值比较器、多路选择/分配器或简单布尔函数；
-- RTL不少于60行；
-- 至少2个中间逻辑信号；
-- 必须考虑边界条件。
+原模块包含两个存储Bank、`active_bank`角色位、DMA向预取Bank写入、计算侧从活动Bank同步读取，以及`swap`切换。但原代码中的握手逻辑只是占位：
 
-时序电路题：
+- `next_tile_ready`在每次`swap`时翻转，不能真实表示预取Bank已经装满；
+- `tile_done`被固定为0，不能真实表示当前Tile已经读完；
+- `swap`没有检查“当前计算完成”和“下一Tile准备完成”，可能过早交换Bank角色。
 
-- 核心是存储或时序控制；
-- 不能只是寄存器、计数器或锁存器；
-- RTL不少于80行；
-- 包含时钟边沿、复位和至少一个控制信号；
-- 需要考虑时序稳定性。
+第二实验要把这些占位行为改造成可解释、可验证的时序协议，同时保持题目聚焦于时序电路，而不是扩展成复杂FSM题。
 
-有限状态机题：
+### 2.2 固定讲解顺序
 
-- Moore或Mealy均可；
-- 状态不少于4个；
-- RTL不少于120行；
-- 必须有多输入条件状态转移，避免冗余和死锁；
-- 解题思路中必须画状态转移图。
+每个阶段必须按以下顺序讲解：
+
+1. 硬件知识与模块在NPU中的位置；
+2. 整体硬件结构；
+3. 变量含义、位宽、单位和有效周期；
+4. 数据流与控制流；
+5. 同拍/跨拍逻辑与时序推导；
+6. 用户按顺序亲自写代码；
+7. 用户亲自执行编译、仿真和波形操作；
+8. Codex根据用户贴出的终端输出或波形现象继续排错。
+
+不能一开始贴完整RTL，也不能把语法逐行翻译代替硬件解释。
+
+### 2.3 最新协作方式：必须由用户执行
+
+用户指出此前Codex代写、代编译和代运行过多。后续必须遵守：
+
+- Codex说明当前步骤的目的；
+- Codex给出这一小步需要写的代码结构或终端命令；
+- 用户在VS Code中亲自编写、保存并执行；
+- 用户把代码片段、终端输出或波形现象发回；
+- Codex检查后才进入下一步；
+- 未经用户明确要求，Codex不得代替用户运行实验、直接完成整份RTL/Testbench或宣称用户已经掌握；
+- 可以读取项目源码、解释硬件、审查用户代码和维护交接/阶段Markdown；
+- 每次只推进一个可验证的小步骤，不提前跑完后续实验。
+
+第二实验的第一轮回复应先完整讲硬件结构和逐拍行为，不要立即创建文件或执行命令。讲完并确认理解后，再让用户亲自执行目录创建命令。
+
+### 2.4 作业语言与同步要求
+
+- 作业RTL使用Verilog-2005，文件后缀为`.v`；
+- 编译使用`iverilog -g2005`；
+- Testbench和RTL都由用户亲自运行；
+- 每个完整讲解阶段保存为Markdown并同步到`Zenia-123/NPU_learing`，报告真实commit；
+- `/home/zenia/aiinfra/assignment`是本机工作版；
+- `NPU_learing/assignments`只保存完成阶段的GitHub同步副本；
+- 不修改或提交上游`tiny-NPU`中的用户GEMM改动。
 
 ## 3. 用户信息
 
-- 用户是集成电路方向研究生，希望通过tiny-NPU建立RTL、数据通路、控制和性能建模能力，后续衔接CIMFlow及MRAM/异构NPU与PIM研究。
-- 代码基础相对薄弱，需要中文、细致、从硬件实体和逐拍行为出发讲解，不要默认已经理解buffer、Bank、valid、归约、计数器或握手等术语。
-- 用户接受单次较多内容，但不希望反复从头讲，也不需要额外布置练习题。
-- 用户希望“带着独立写”：先理解并逐段构建，最后仍要给出完整、可运行、经过验证的代码。
-- 用户要求每次完整课程或作业阶段的Markdown当次同步到GitHub，并给出真实commit，不接受只声称已经上传。
-- 用户本轮明确补充：后续先讲硬件知识、整体硬件结构、数据流和控制流，再分析逻辑、带写并给出代码。
-- 用户明确要求作业RTL使用Verilog，不使用SystemVerilog。后续文件统一使用`.v`，按Verilog-2005编译。
+- 用户是集成电路方向研究生，希望通过tiny-NPU建立RTL、数据通路、控制通路和性能建模能力，后续衔接CIMFlow以及MRAM/异构NPU与PIM研究。
+- 代码基础相对薄弱，偏好中文、细致、从硬件实体和逐拍行为出发的讲解。
+- 不要默认用户已理解valid/ready、Bank角色、同步读延迟、完成标志、握手或非阻塞赋值。
+- 用户希望“带着独立写”，不是接收一份已经完成的答案。
+- 用户不希望重复已完成的GEMM、SRAM、Bank、Buffer和Ping-Pong基础课程；第二题应在这些基础上进入具体硬件设计。
+- 用户要求讲解顺序始终是“硬件结构→变量含义与单位→数据/控制流→代码顺序与时序”。
+- 用户要求知道RTL和Testbench写完之后每一步做什么，因此必须解释保存、编译、运行、VCD生成、GTKWave观察、截图和报告整理的完整流程。
+- 用户接受先暂停第一题成稿，当前优先进入第二实验。
 
 ## 4. 已完成部分
 
-### 4.1 已完成的tiny-NPU课程
+### 4.1 已完成的tiny-NPU学习内容
 
-- [x] 第01讲：整体架构，`docs/lesson-01-overview.md`。
-- [x] 第02讲：RTL与INT8 MAC，`docs/lesson-02-rtl-mac.md`。
-- [x] 第03讲：PE微结构，`docs/lesson-03-pe-microarchitecture.md`。
-- [x] 第04讲：脉动阵列与周期级数据流，`docs/lesson-04-systolic-array.md`。
-- [x] 第05讲：GEMM源码、控制器设计方法和后处理，见三个`lesson-05-*`文件。
-- [x] 第06讲：SRAM、Bank与Buffer，`docs/lesson-06-sram-bank-buffer.md`。
-- [x] Ping-Pong补充：`docs/lesson-06-supplement-ping-pong-pipeline.md`。
+- [x] 整体架构：`docs/lesson-01-overview.md`
+- [x] RTL与INT8 MAC：`docs/lesson-02-rtl-mac.md`
+- [x] PE微结构：`docs/lesson-03-pe-microarchitecture.md`
+- [x] 脉动阵列：`docs/lesson-04-systolic-array.md`
+- [x] GEMM与`gemm_post`：`docs/lesson-05-*`
+- [x] SRAM、Bank与Buffer：`docs/lesson-06-sram-bank-buffer.md`
+- [x] Ping-Pong补充：`docs/lesson-06-supplement-ping-pong-pipeline.md`
 
-不要重复上述课程。尤其不要重新讲SRAM的基本同步读写、Bank概念或Ping-Pong入门；作业讲解应引用这些基础后进入新设计。
+以上课程不应从头重讲。第二题只在需要时引用关键结论。
 
-### 4.2 已完成的作业准备
+### 4.2 第一实验已有资产
 
-- [x] 已读取并核对9页正式Word作业模板。
-- [x] 已比较tiny-NPU中的组合、时序和FSM候选模块。
-- [x] 已确定三道题为Bank路由仲裁器、Tile Buffer和`ucode_fetch`。
-- [x] 已确认本机安装`Icarus Verilog 11.0`、`vvp`和`GTKWave`。
-- [x] 已完成第一题的需求、硬件结构、端口、中间信号、仲裁规则、边界条件和11项Testbench验证计划：`docs/assignment-01-bank-router-part-01-spec.md`。
-- [x] 第一题RTL基础讲义、94行阶段RTL与真实编译记录已完成；本次同步提交一并更新本交接文档。
-- [x] 第一题仲裁核心已完成：133行组合RTL、7组定向基础自检、实际Icarus Verilog 12.0编译与vvp运行全部退出0；完整T1～T11及VCD仍待后续。
-- [x] 第一题已迁移为Verilog-2005：133行`.v` RTL与206行`.v`基础Testbench使用系统Icarus Verilog 11.0、`iverilog -g2005`复验7/7通过；迁移讲义为part-04。
-- [x] 用户在`/home/zenia/aiinfra/assignment`中重写的RTL已完成真实错误修正，smoke测试7/7通过；正式T1～T11自检11/11通过，并生成约3.0 KiB的实际VCD。
-- [x] 第一题规格讲义已提交并推送，commit为`fe623b1d9f877856af5e50b6f9ab88d2bd6e5167`，远端`main`已核验指向该提交。
+第一题模块为`bank_access_router`。仓库中已经存在：
 
-### 4.3 第一题已经固定的设计决定
+- [x] 设计规格与T1～T11计划；
+- [x] Verilog-2005 RTL；
+- [x] 基础smoke Testbench；
+- [x] T1～T11 Testbench；
+- [x] VCD波形；
+- [x] 相关讲义和运行记录。
 
-- 模块名：`bank_access_router`。
-- 纯组合电路，无clk/rst、状态寄存器、锁存器或真正SRAM。
-- 默认4请求、4个单端口Bank、每Bank16word、每word8bit。
-- 全局word地址8bit，合法0～63；64为首个越界地址。
-- 低位交织：`bank_id=global_addr[1:0]`，`local_addr=global_addr>>2`。
-- 每Bank独立固定优先级：req0 > req1 > req2 > req3。
-- 合法获胜grant，合法失败stall，有效越界error；无效请求三者均0。
-- 读请求的Bank写数据输出固定0，禁用Bank所有字段默认0。
-- 扁平打包端口按请求号r拆包、按Bank号b打包，编号0占最低位段。
-- 每Bank输出en/we/local_addr/wdata/owner/conflict。
-- 教学扩展受banked_sram启发，不是原模块的原样复制。
+关键文件：
 
-RTL基础阶段94行仅完成地址前端与error，未实现仲裁。该历史阶段编译记录保留在`rtl-foundation-compile.txt`，不代表当前源码仍不完整。
+- `docs/assignment-01-bank-router-part-01-spec.md`
+- `docs/assignment-01-bank-router-part-04-verilog-migration.md`
+- `docs/assignment-01-bank-router-part-05-t11-waveform.md`
+- `assignments/assignment-01-bank-router/rtl/bank_access_router.v`
+- `assignments/assignment-01-bank-router/tb/bank_access_router_t11_tb.v`
+- `assignments/assignment-01-bank-router/waves/bank_router_t11.vcd`
 
-当前正式仲裁源码为`rtl/bank_access_router.v`，共133行；采用Verilog-2005的`wire/reg`、`always @(*)`、模块级循环整数和展平候选矩阵。4×4候选关系、逐Bank重置临时量、候选统计、首候选优先、Bank输出选择、grant/stall/conflict与原SystemVerilog阶段版一致。
+必须准确描述第一题状态：
 
-Verilog迁移实际编译并运行了`checks/tb_arbitration_smoke.v`，7组基础向量全部通过。系统Icarus Verilog 11.0在`-Wall`下提示`@(*)`敏感于数组全部元素，这是敏感列表展开信息，不是编译错误。完整记录在`checks/arbitration-smoke-verilog-results.txt`；历史`.sv`源码与历史日志只作为迁移对照保留。
+- 这些文件和11/11结果主要由此前Codex代写、代运行形成；
+- 用户随后明确表示实验应由自己执行；
+- 因此不能把这些资产表述为用户已经亲自完成或已经完全掌握；
+- 用户本轮选择暂不继续第一题GTKWave截图和Word成稿，直接进入第二实验；
+- 第一题文件保留，未来如用户要求再按“用户亲自操作”的方式补完。
 
-已运行完整T1～T11定向回归并生成VCD，覆盖单读、单写、四Bank并行、两请求及四请求冲突、63/64边界、无效越界、混合合法/越界与输入撤销。尚未整理GTKWave正式截图，也没有运行综合、锁存器形式证明或STA。不要把11组定向测试升级表述为穷举证明。
+### 4.3 已完成的环境准备
 
+本机已经确认存在：
+
+- Icarus Verilog 11.0；
+- `vvp`；
+- GTKWave 3.3.104；
+- VS Code；
+- Verilog HDL扩展。
+
+第一题工作版位于`/home/zenia/aiinfra/assignment/bank_router`。不要删除其RTL、Testbench、build或waves文件。
+
+### 4.4 第二实验尚未完成
+
+截至本交接文档：
+
+- [ ] 尚未创建`/home/zenia/aiinfra/assignment/tile_buffer`实验目录；
+- [ ] 尚未由用户定义第二题最终端口和安全交换协议；
+- [ ] 尚未编写Verilog RTL；
+- [ ] 尚未编写Testbench；
+- [ ] 尚未由用户执行编译、仿真或GTKWave；
+- [ ] 尚未创建第二题正式讲义。
+
+不要声称第二实验已经开始编码或验证。
 
 ## 5. 当前进度
 
-**第一题仲裁核心、Verilog-2005迁移、正式T1～T11和VCD生成均已完成；下一阶段是GTKWave正式截图、波形说明与第一题作业成稿。** 不重写接口和地址前端，不再次迁移语言，不跳到第二题或DMA/AXI。
+当前主线已经切换到第二题“双Bank乒乓Tile Buffer”。
 
-接手时先读：
+新对话接手后的第一项工作不是写代码，而是进行第二题第一讲，内容必须包括：
 
-1. `docs/assignment-01-bank-router-part-01-spec.md`：完整规格与T1～T11。
-2. `docs/assignment-01-bank-router-part-05-t11-waveform.md`：当前最新阶段讲义、命令和错误修正记录。
-3. `/home/zenia/aiinfra/assignment/bank_router/rtl/bank_access_router.v`：用户当前工作版RTL。
-4. `/home/zenia/aiinfra/assignment/bank_router/tb/bank_access_router_t11_tb.v`：正式T1～T11 Testbench。
-5. `/home/zenia/aiinfra/assignment/bank_router/waves/bank_router_t11.vcd`：实际生成的波形。
-6. `assignments/assignment-01-bank-router/checks/t11-verification-results.txt`：系统Icarus 11.0的11/11记录。
-7. `docs/setup-vscode-verilog-environment.md`：Verilog-2005环境与语言约束。
+1. Tile Buffer在DMA与计算阵列之间的位置；
+2. 为什么单Bank会让“加载下一Tile”和“计算当前Tile”互相阻塞；
+3. 两个Bank的硬件实体，以及`active_bank`如何决定compute bank和prefetch bank；
+4. DMA写、计算同步读、Bank角色交换三条路径；
+5. 同步读的一拍延迟：在第N拍采样`compute_rd_en/addr`，第N+1拍`compute_rd_data`更新；
+6. 原`tile_buffer.sv`中`tile_done`和`next_tile_ready`为什么是占位逻辑；
+7. 安全交换必须满足的概念条件：
+   `swap_req && tile_done && next_tile_ready`；
+8. 讨论完成标志应如何产生：
+   - 预取侧可根据最后一个DMA地址写入产生`next_tile_ready`；
+   - 计算侧要考虑最后一次读请求与一拍后数据返回的对齐；
+   - 交换后两个完成标志应清除并开始下一轮；
+9. 明确本题是时序电路：包含时钟、低有效复位、两个存储Bank、Bank角色寄存器、同步读寄存器和完成标志寄存器。
 
-需要补基础语法时再读part-02，不从头重复。
+第一讲结束后，只让用户执行第一条准备命令，不要代执行：
 
-Verilog迁移、正式Testbench和VCD已经完成，不要重复。下一阶段按以下顺序推进：
+```bash
+cd /home/zenia/aiinfra/assignment
+mkdir -p tile_buffer/rtl tile_buffer/tb tile_buffer/build tile_buffer/waves
+```
 
-1. 从`/home/zenia/aiinfra/assignment`打开`bank_router/waves/bank_router_t11.vcd`。
-2. 整理GTKWave信号布局，重点截取T5、T8、T11三个窗口。
-3. 为每张图解释输入、Bank选择、仲裁结果、数据路由和反馈语义。
-4. 把题目、解题思路、硬件结构、RTL、Testbench、11/11日志和真实波形排入学校Word模板。
-5. 第一题成稿完成后，才进入第二题。
-
-当前7组基础检查已覆盖无效越界、四Bank并行、四请求同Bank、部分冲突、63/64边界、非法高优先级不能获胜、req1胜req2与撤销输出；它们不等于已逐项完成正式T1～T11。
-
-远端历史记录使用临时Icarus 12.0，目录为`/tmp/npu-iverilog/`，不能假设永久存在。当前电脑已经核对系统`/usr/bin/iverilog`为11.0 stable、`vvp`和GTKWave均可用；Verilog迁移与正式作业统一使用系统工具和`-g2005`。
-
+用户贴出`pwd`和`find tile_buffer -maxdepth 2 -type d`结果后，再进入端口与规格设计。
 
 ## 6. 用到的资源文件
 
-### 6.1 `NPU_learing`仓库根目录
+以下路径相对于`/home/zenia/aiinfra/npu/NPU_learing`。
 
-最新文件：
+### 6.1 已创建或已修改
 
-- `HANDOFF.md`：当前进度与下一步。
-- `docs/assignment-01-bank-router-part-01-spec.md`：规格。
-- `docs/assignment-01-bank-router-part-02-rtl-foundation.md`：地址前端历史阶段讲义。
-- `docs/assignment-01-bank-router-part-03-arbitration.md`：仲裁核心最新完整讲义。
-- `docs/assignment-01-bank-router-part-04-verilog-migration.md`：Verilog-2005迁移与7/7复验讲义。
-- `docs/assignment-01-bank-router-part-05-t11-waveform.md`：独立目录错误修正、终端命令、T1～T11与VCD讲义。
-- `docs/setup-vscode-verilog-environment.md`：VS Code、Icarus、GTKWave与Verilog-2005环境指南。
-- `assignments/assignment-01-bank-router/rtl/bank_access_router.v`：当前133行正式Verilog-2005 RTL。
-- `assignments/assignment-01-bank-router/checks/rtl-foundation-compile.txt`：历史基础阶段编译记录。
-- `assignments/assignment-01-bank-router/checks/tb_arbitration_smoke.v`：206行Verilog-2005基础自检代码。
-- `assignments/assignment-01-bank-router/checks/arbitration-smoke-verilog-results.txt`：系统Icarus 11.0实际编译及7/7结果。
-- `assignments/assignment-01-bank-router/tb/bank_access_router_t11_tb.v`：正式T1～T11自检代码。
-- `assignments/assignment-01-bank-router/checks/t11-verification-results.txt`：实际11/11结果与验证边界。
-- `assignments/assignment-01-bank-router/waves/bank_router_t11.vcd`：实际生成的VCD同步副本。
-- 历史`.sv` RTL、smoke Testbench与旧日志保留作迁移对照，不再作为正式作业入口。
+- `HANDOFF.md`：本交接文档；
+- `docs/assignment-01-bank-router-part-01-spec.md`：第一题规格；
+- `docs/assignment-01-bank-router-part-02-rtl-foundation.md`：第一题地址前端；
+- `docs/assignment-01-bank-router-part-03-arbitration.md`：第一题仲裁；
+- `docs/assignment-01-bank-router-part-04-verilog-migration.md`：Verilog迁移；
+- `docs/assignment-01-bank-router-part-05-t11-waveform.md`：第一题命令、错误和波形；
+- `docs/setup-vscode-verilog-environment.md`：环境指南；
+- `assignments/assignment-01-bank-router/`：第一题GitHub同步资产。
 
-既有第01～06讲、GEMM后交接、Ping-Pong补充与复习文档继续保留，无需重讲。完整课程清单见4.1。
+### 6.2 外部参考文件
 
-后续直接基于已生成的VCD完成GTKWave截图、实际波形说明和第一题作业成稿。历史`.sv`文件继续保留作为对照，不要直接删除。
+以下文件不在`NPU_learing`仓库中：
 
-### 6.2 tiny-NPU源码根目录
+- tiny-NPU参考：`/home/zenia/aiinfra/npu/tiny-NPU/rtl/mem/tile_buffer.sv`；
+- tiny-NPU SRAM参考：`/home/zenia/aiinfra/npu/tiny-NPU/rtl/mem/sram_dp.sv`；
+- 用户作业根目录：`/home/zenia/aiinfra/assignment`；
+- 第一题工作目录：`/home/zenia/aiinfra/assignment/bank_router`；
+- 正式Word模板：`/home/zenia/Downloads/数字大规模集成电路-开放作业-学号-姓名.docx`；
+- Word锁文件`/home/zenia/Downloads/.~大规模集成电路-开放作业-学号-姓名.docx`只有162字节，不能当模板正文。
 
-源码根目录：`/home/zenia/aiinfra/npu/tiny-NPU`。固定参考版本：`8216c22b762011aa20c05fc2768423fd12dda59d`。
+### 6.3 第二题需由用户继续创建
 
-已读取并用于选题或核对：
+相对于`/home/zenia/aiinfra/assignment`：
 
-- `README.md`。
-- `rtl/top.sv`。
-- `rtl/mem/sram_dp.sv`。
-- `rtl/mem/banked_sram.sv`。
-- `rtl/mem/tile_buffer.sv`。
-- `rtl/ctrl/addr_gen.sv`。
-- `rtl/ctrl/scoreboard.sv`。
-- `rtl/ctrl/barrier.sv`。
-- `rtl/ctrl/ucode_fetch.sv`。
-- `rtl/ctrl/kv_ctrl.sv`。
-- `rtl/bus/axi_dma_rd.sv`。
-- `rtl/bus/axi_dma_wr.sv`。
-- `rtl/gemm/gemm_post.sv`仅用于排除GEMM候选，不作为作业继续方向。
-
-tiny-NPU工作树中已有用户的GEMM与仿真文件改动，以及`rtl/gemm/gemm_post copy.sv`未跟踪文件。它们不是本作业产生的改动，必须保留，不要重置、覆盖或顺手提交。当前作业代码应写入`/home/zenia/aiinfra/assignment`，完成阶段再镜像到`NPU_learing`，不要修改上游tiny-NPU RTL。
-
-### 6.3 外部附件
-
-- 正式作业模板：`/home/zenia/Downloads/数字大规模集成电路-开放作业-学号-姓名.docx`。
-- Word临时锁文件：`/home/zenia/Downloads/.~大规模集成电路-开放作业-学号-姓名.docx`，只有162字节，不要使用。
-- 初始交接附件：`/home/zenia/Downloads/handoff-after-gemm-post-2026-10-31(1).md`；仓库中已有对应交接内容，后续优先读本文件与仓库版本。
+- `tile_buffer/rtl/tile_buffer.v`：尚未创建，用户分阶段编写；
+- `tile_buffer/tb/tile_buffer_tb.v`：尚未创建，用户在RTL之后编写；
+- `tile_buffer/build/`：保存用户编译出的`.vvp`；
+- `tile_buffer/waves/`：保存用户运行生成的VCD；
+- `docs/assignment-02-*.md`：完整阶段后由Codex整理并同步GitHub。
 
 ## 7. 需要交接的计划
 
-执行顺序：先依次完成下列三道作业；三题全部结束后，再询问并依据用户当时的进度恢复tiny-NPU学习。
+1. **第二题硬件第一讲**：按第5节列出的9项内容讲清模块位置、双Bank结构、数据/控制流和逐拍时序，不贴完整RTL。
+2. **用户创建目录**：只给命令，让用户执行并贴出结果；Codex不代执行。
+3. **共同定义需求**：逐项确定默认Bank深度、数据宽度、端口、完成条件、早到swap如何处理、交换后标志如何清除。
+4. **画周期表**：至少推导“DMA写满→下一Tile就绪”“最后一次计算读请求→数据返回→tile_done”“双方完成→安全交换”三个时间序列。
+5. **用户写RTL骨架**：先参数和端口，再存储Bank与状态寄存器；用户每写完一段，Codex只审查当前段。
+6. **用户写时序逻辑**：依次完成复位、DMA写、同步读、完成标志和安全交换，不一次给整份代码。
+7. **用户亲自编译**：Codex给出`iverilog -g2005`命令，等待用户贴输出后再排错。
+8. **用户写Testbench**：先时钟/复位，再写入、读取、一拍延迟、早到swap、安全swap和连续两轮Tile测试。
+9. **用户亲自仿真和看波形**：给出`vvp`、VCD与GTKWave操作，由用户执行并描述结果。
+10. **第二题成稿**：整理题目、思路、硬件结构、RTL、Testbench和用户实际得到的波形。
+11. **第三题**：第二题由用户完成后再进入`ucode_fetch` FSM。
+12. **恢复tiny-NPU学习**：三道作业全部完成后再决定下一讲。
 
-1. **第一题规格（已完成）**：part-01。
-2. **第一题RTL基础（已完成）**：part-02与历史编译记录。
-3. **第一题仲裁核心（已完成）**：part-03、133行RTL、7/7基础自检，实际编译及vvp退出0；未生成VCD。
-4. **Verilog-2005迁移（已完成）**：`.v` RTL与smoke Testbench使用系统Icarus 11.0、`iverilog -g2005`复验7/7。
-5. **第一题正式Testbench与VCD（已完成）**：T1～T11实际11/11通过，VCD已生成并检查关键信号变化。
-6. **第一题波形截图与作业成稿（下一步）**：整理GTKWave的T5、T8、T11窗口，把题目、思路、硬件结构、RTL、Testbench、真实波形和说明写入学校模板。
-7. **第二题Tile Buffer**：完成第一题后再开始。复用已学基础，重点补齐原码next_tile_ready/tile_done占位行为所缺的安全切换协议，再写Verilog时序RTL和验证。
-8. **第三题ucode_fetch FSM**：完成第二题后开始。先硬件/PC/同步读/反压，画六状态图，再写Verilog代码与验证。
-9. **恢复tiny-NPU学习**：只在三道作业全部完成后进行；先核对用户届时掌握情况，再确定下一讲，不默认从旧课程重新开始。
-10. **持续同步**：每个完整阶段在当次提交main，给短commit、完整commit、文件路径和真实验证范围。不要伪造波形或把有限用例通过表述为所有情况正确。
+新对话只需执行这条接手指令：
 
-新对话接手指令：**“读取GitHub仓库`Zenia-123/NPU_learing`的`HANDOFF.md`继续；第一题T1～T11和VCD已完成，工作目录是`/home/zenia/aiinfra/assignment`，下一步带我整理GTKWave截图并完成第一题作业成稿。”**
+**“读取GitHub仓库`Zenia-123/NPU_learing`的`HANDOFF.md`继续，直接进入第二实验Tile Buffer；先讲硬件结构和逐拍时序，由我亲自写代码和运行命令。”**
