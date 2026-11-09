@@ -1,0 +1,24 @@
+Bank router Verilog-2005 smoke verification
+Date: 2026-11-09
+Tool: Icarus Verilog 11.0 (stable)
+
+Compile command:
+iverilog -g2005 -Wall -s tb_arbitration_smoke -o /tmp/npu_assignment_verilog/smoke_v.vvp assignments/assignment-01-bank-router/rtl/bank_access_router.v assignments/assignment-01-bank-router/checks/tb_arbitration_smoke.v
+
+Run command:
+vvp /tmp/npu_assignment_verilog/smoke_v.vvp
+
+Observed output:
+PASS S0 inactive out-of-range request
+PASS S1 four independent Banks
+PASS S2 four candidates on Bank1
+PASS S3 partial conflict and parallel routing
+PASS S4 address 63 accepted and 64 rejected
+PASS S5 invalid req0 cannot win; req1 beats req2
+PASS S6 outputs clear after active traffic
+PASS arbitration smoke: 7/7 vectors
+
+Scope:
+- Default parameters only: 4 requesters, 4 Banks, 16 words/Bank, 8-bit data.
+- Seven directed smoke vectors only.
+- This is not the full T1-T11 regression and does not claim exhaustive proof.
