@@ -157,11 +157,12 @@ tiny-NPU参考源码：
 
 - [ ] 尚未创建`/home/zenia/aiinfra/assignment/tile_buffer`实验目录；
 - [ ] 尚未由用户定义第二题最终端口和安全交换协议；
-- [ ] 尚未由用户编写Verilog RTL；
+- [ ] 尚未由用户亲自保存或编写Verilog RTL；助手已按用户直接要求在对话中提供一版基线RTL及解释，协议见`docs/assignment-02-tile-buffer-part-02-rtl-protocol.md`；
 - [ ] 尚未由用户编写Testbench；
 - [ ] 尚未由用户执行编译、仿真或GTKWave；
 - [x] 第二题硬件第一讲已完成并保存为`docs/assignment-02-tile-buffer-part-01-hardware.md`，覆盖结构、变量、数据/控制流、逐沿读返回、安全交换与启动边界。
-- [ ] 用户尚未反馈目录创建输出，参数、端口与最终协议尚未共同确认。
+- [x] 用户已要求采用并讲解一版基线协议：`dma_bootstrap`完成首块装载，`dma_wr_last`/`compute_rd_last`表示传输终点，`swap_req && tile_done && next_tile_ready`触发安全交换；说明见`docs/assignment-02-tile-buffer-part-02-rtl-protocol.md`。
+- [ ] 用户尚未反馈目录创建输出，且尚未亲自保存、编译或仿真RTL。
 
 不要声称用户已开始第二实验编码或验证。助手在本执行环境曾进行参考实现/检查，但它们未作为用户实验资产发布，也不计入用户进度；不得以此跳过用户的亲自编写和执行。
 
@@ -171,7 +172,7 @@ tiny-NPU参考源码：
 
 `docs/assignment-02-tile-buffer-part-01-hardware.md`
 
-当前等待用户在自己的终端创建目录并反馈输出，不能代执行或提前给出完整RTL。
+当前等待用户在自己的终端创建目录并反馈输出，然后由用户保存已经给出的RTL，接着编写Testbench；不能代替用户运行。
 
 ```bash
 cd /home/zenia/aiinfra/assignment
@@ -203,6 +204,7 @@ find tile_buffer -maxdepth 2 -type d
 
 - `HANDOFF.md`：本交接文档；
 - `docs/assignment-02-tile-buffer-part-01-hardware.md`：第二题硬件第一讲；
+- `docs/assignment-02-tile-buffer-part-02-rtl-protocol.md`：第二题基线RTL协议与逐拍时序；
 - `docs/assignment-01-bank-router-part-01-spec.md`：第一题规格；
 - `docs/assignment-01-bank-router-part-02-rtl-foundation.md`：第一题地址前端；
 - `docs/assignment-01-bank-router-part-03-arbitration.md`：第一题仲裁；
@@ -235,13 +237,11 @@ find tile_buffer -maxdepth 2 -type d
 ## 7. 需要交接的计划
 
 1. **第二题硬件第一讲（已完成）**：见`docs/assignment-02-tile-buffer-part-01-hardware.md`；用户尚未确认全部理解。
-2. **用户创建目录（当前等待）**：命令已给出，等用户贴出pwd与find结果；Codex不代执行。
-3. **共同定义需求**：逐项确定默认Bank深度、数据宽度、端口、完成条件、早到swap如何处理、交换后标志如何清除。
-4. **画周期表**：至少推导“DMA写满→下一Tile就绪”“最后一次计算读请求→数据返回→tile_done”“双方完成→安全交换”三个时间序列。
-5. **用户写RTL骨架**：先参数和端口，再存储Bank与状态寄存器；用户每写完一段，Codex只审查当前段。
-6. **用户写时序逻辑**：依次完成复位、DMA写、同步读、完成标志和安全交换，不一次给整份代码。
-7. **用户亲自编译**：Codex给出`iverilog -g2005`命令，等待用户贴输出后再排错。
-8. **用户写Testbench**：先时钟/复位，再写入、读取、一拍延迟、早到swap、安全swap和连续两轮Tile测试。
+2. **基线RTL协议（已提供，未运行）**：见`docs/assignment-02-tile-buffer-part-02-rtl-protocol.md`；用户亲自保存后再检查。
+3. **用户创建目录（当前等待）**：命令已给出，等用户贴出pwd与find结果；Codex不代执行。
+4. **用户写Testbench**：先时钟/复位，再验证启动装载、同步读、一拍延迟、早到swap、安全swap和连续两轮Tile。
+5. **用户亲自编译**：Codex给出`iverilog -g2005`命令，等待用户贴输出后再排错。
+6. **用户亲自仿真和看波形**：给出`vvp`、VCD与GTKWave操作，由用户执行并描述结果。
 9. **用户亲自仿真和看波形**：给出`vvp`、VCD与GTKWave操作，由用户执行并描述结果。
 10. **第二题成稿**：整理题目、思路、硬件结构、RTL、Testbench和用户实际得到的波形。
 11. **第三题**：第二题由用户完成后再进入`ucode_fetch` FSM。

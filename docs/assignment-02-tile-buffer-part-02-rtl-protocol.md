@@ -1,6 +1,8 @@
-# 实验二：双 Bank 乒乓 Tile Buffer（一）——硬件结构与逐拍时序
+# 实验二：双 Bank 乒乓 Tile Buffer（二）——RTL 协议、结构与逐拍时序
 
 ## 1. 本阶段目标
+
+本篇承接第一讲 `assignment-02-tile-buffer-part-01-hardware.md`。用户随后要求先获得一版完整 RTL 并理解设计原因，因此本篇固定了用于第一版仿真的启动装载、最后传输标记和安全交换协议；用户尚未亲自保存、编译或仿真该 RTL。
 
 本实验实现一个位于 DMA 与计算阵列之间的双 Bank Tile Buffer。目标不是单纯存数据，而是在不覆盖当前计算数据的前提下，让 DMA 装载下一块 Tile 与计算侧读取当前 Tile 并行进行。
 
