@@ -5,8 +5,29 @@
 本实验以 tiny-NPU 的 `rtl/ctrl/ucode_fetch.sv` 为参考，设计一个微码指令读取控制器。它从 128-bit UCODE SRAM 顺序读取指令，通过 `valid/ready` 握手交给 Decode，并能处理同步读延迟、下游反压、`OP_END`、程序长度结束和 `stop`。
 
 本篇只讲硬件结构、控制流和数据流；用户尚未开始第三题 RTL、Testbench 或仿真。
-
+start 锁存程序配置
+→ PC 给出当前微码 word 地址
+→ SRAM 一拍后返回指令
+→ 指令缓冲把数据钉住
+→ Decode 签收后 PC 才加一
+→ 长度 / OP_END / stop 任一满足则结束
 ## 2. 模块在 NPU 中的位置
+```
+控制寄存器                 同步 UCODE SRAM                   Decode
+start/base/len                    128-bit                    指令消费者
+     │                                │                           │
+     v                                │                           │
+┌─────────────────────────────────────────────────────────────────────┐
+│                         ucode_fetch                                 │
+│  配置寄存器：base_q、len_q       数据寄存器：instr_buf_q             │
+│  PC 寄存器：pc_q                 控制器：六状态 FSM                 │
+│                                                                     │
+│  rd_addr = base_q + pc_q ────────> rd_en / rd_addr                  │
+│  rd_data ────────────────────────> instr_buf_q ──> instr_data      │
+│  rd_valid ───────────────────────> FSM           ──> instr_valid   │
+│  instr_ready <──────────────────── FSM                              │
+└─────────────────────────────────────────────────────────────────────┘
+```
 **ucode_fetch 用 FSM 控制 SRAM 读请求，用 PC 产生地址，用指令缓冲寄存器保存返回数据，并以 valid/ready 协议把指令安全交给 Decode。**
 ```text
 控制寄存器                           指令消费者
@@ -22,7 +43,24 @@ start / base / len                      ucode_decode
        |
        +-- busy / done
 ```
-
+```
+控制寄存器
+ start / ucode_base / ucode_len
+          │
+          ▼
+     ucode_fetch
+          │ rd_en / rd_addr
+          ▼
+  128-bit UCODE SRAM
+          │ rd_data / rd_valid
+          ▼
+     ucode_fetch
+          │ instr_valid / instr_data
+          ▼
+ ucode_decode / Dispatch
+          │ instr_ready
+          └───────────────反馈给 Fetch
+```
 `ucode_fetch` 是一个小型取指单元：从 SRAM 取出一条 128-bit 指令，只有 Decode 接收它之后，才会前进到下一条。
 
 ## 3. 硬件框架
@@ -48,7 +86,8 @@ base_q = 100
 pc_q = 0  -> rd_addr = 100
 pc_q = 1  -> rd_addr = 101
 ```
-
+Fetch → SRAM：rd_en / rd_addr 发读请求；rd_valid 表示数据回来
+Fetch → Decode：instr_valid 提供指令；instr_ready 表示对方已接收
 ## 4. 信号语义与两组握手
 
 | 信号 | 方向（相对 Fetch） | 含义 |
@@ -117,6 +156,32 @@ S_IDLE ──> S_FETCH ──> S_WAIT_DATA ──> S_DISPATCH ──> S_INCREMEN
                          └─ stop   → S_DONE
 
 S_DONE --> S_IDLE
+```
+
+```
+S_IDLE
+  │ start
+  ▼
+S_FETCH
+  │ 发出 rd_en 和 rd_addr
+  ▼
+S_WAIT_DATA
+  │ 等 rd_valid
+  ├── 读到 OP_END / stop ──> S_DONE
+  ▼
+S_DISPATCH
+  │ instr_valid=1，等待 instr_ready
+  ▼
+S_INCREMENT
+  │ pc = pc + 1；判断是否达到 ucode_len
+  ├── 到末尾 / stop ──> S_DONE
+  └── 未到末尾 ────────> S_FETCH
+  ▼
+S_DONE
+  │ done=1 一个周期
+  ▼
+S_IDLE
+
 ```
 
 | 状态 | 数据动作 | 控制条件 |
