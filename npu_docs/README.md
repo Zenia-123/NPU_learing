@@ -16,8 +16,9 @@
 | 06 | SRAM、Bank与Buffer | [存储结构](lesson-06-sram-bank-buffer.md)、[Ping-Pong与流水](lesson-06-supplement-ping-pong-pipeline.md) |
 | 07补充 | AXI零基础快速介绍 | [AXI基础](lesson-07-supplement-axi-basics.md) |
 | 07上 | DMA与AXI读通路 | [axi_dma_rd](lesson-07-dma-axi-read.md) |
+| 07下 | DMA与AXI写通路 | [axi_dma_wr](lesson-07-dma-axi-write.md) |
 
-第07讲上已讲解；2026-11-10因用户明确未学过AXI，先补充AXI基础。尚未由用户确认掌握，优先解答AXI问题，再回到DMA源码；原计划后续为axi_dma_wr、宽度适配与本地落存完成，再进入第08讲ISA/Fetch/Decode/Dispatch。
+第07讲上、AXI基础和写DMA讲解均已提供，尚未由用户确认掌握。优先解答具体问题；继续主线时讲8 bit SRAM与128 bit AXI的宽度适配和落存/发送完成协议，再进入第08讲ISA/Fetch/Decode/Dispatch。
 
 ## 学习地图与历史资料
 

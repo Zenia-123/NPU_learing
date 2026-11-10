@@ -45,11 +45,15 @@ npu_docs/lesson-07-supplement-axi-basics.md。
 
 内容为AXI用途、AXI4/Lite/Stream区别、主从角色、五通道、VALID/READY、读写事务、byte/beat/burst及tiny-NPU信号对应。快速介绍不等于掌握，不能默认用户已理解握手、burst或各通道的独立性。优先回答AXI基础问题，再回到DMA源码；原计划后续仍为axi_dma_wr。未运行仿真，示例表为协议说明。
 
+## 2026-11-10项目主线新停点
+
+用户说“继续讲解”，按既定计划已讲第07讲下：npu_docs/lesson-07-dma-axi-write.md。按硬件、变量、数据/控制、源码顺序和逐拍时序解释axi_dma_wr、AW/W/B、WSTRB、WLAST、B响应、错误及顶层占位。用户尚未确认理解，优先答疑。未做仿真或修改上游RTL。
+
+写DMA重要事实：最后W握手进入WAIT_BRESP，最后B握手后直接DONE；data_last输入未使用，WLAST由beat_cnt和burst_len产生；没有内部FIFO，等待时数据稳定依赖上游；非零写命令在固定版本top.sv中因data_valid恒0，AW后停在SEND_WDATA；BID未校验、error端口未接顶层。默认对齐20 Byte例尾拍WSTRB=16'h000F。
+
 ## 下一步
 
-优先回答用户对本讲的具体问题。若用户要求“下一讲/继续”，进入第07讲下半部分rtl/bus/axi_dma_wr.sv，按硬件结构→变量宽度与单位→数据/控制流→源码顺序与逐拍时序讲解AW/W/B、WSTRB、WLAST、WAIT_BRESP。
-
-然后讲128 bit到8 bit存储适配与安全完成协议，再进入第08讲ISA/Fetch/Decode/Dispatch。不要自动接回课程作业或跳去CIMFlow。
+优先回答用户对AXI与写DMA的具体问题。若用户要求“下一讲/继续”，讲8 bit SRAM与128 bit AXI之间的双向打包/拆包、反压和完成协议，明确相关外围设计是待接入方案；之后进入第08讲ISA/Fetch/Decode/Dispatch。不要自动接回课程作业或跳去CIMFlow。
 
 每次完整讲义当次同步Zenia-123/NPU_learing的main/npu_docs，返回真实commit与文件链接。不额外布置练习题。需要实验时由用户亲自编写和运行，未经明确要求不代执行。保留用户代码，不修改上游RTL，除非用户随后明确要求。
 
