@@ -51,9 +51,15 @@ npu_docs/lesson-07-supplement-axi-basics.md。
 
 写DMA重要事实：最后W握手进入WAIT_BRESP，最后B握手后直接DONE；data_last输入未使用，WLAST由beat_cnt和burst_len产生；没有内部FIFO，等待时数据稳定依赖上游；非零写命令在固定版本top.sv中因data_valid恒0，AW后停在SEND_WDATA；BID未校验、error端口未接顶层。默认对齐20 Byte例尾拍WSTRB=16'h000F。
 
+## 2026-11-10位宽适配课程停点
+
+用户要求“继续学习”，按既定计划讲解npu_docs/lesson-07-sram-axi-width-adapter.md：8 bit SRAM与128 bit AXI的拆包/打包、20 Byte尾项、valid/ready反压、同步SRAM读请求与下一沿捕获、in-flight容量、DMA done和本地落存/ready的区别。适配器是教学设计方案，固定版本top并未完整实现；没有修改RTL或运行仿真。用户尚未确认掌握，优先答疑。
+
+读向单缓冲示例E0接收首beat、E1～E16写16 Byte、E17接收尾beat、E18～E21写尾4 Byte；最后R握手后读DMA在E18沿后done，本地E21才写完，必须保存done/error并等待本地提交。写向E0发SRAM读、E1捕获首Byte、E16捕获第16个并沿后置valid，最早E17握手；尾4 Byte由写DMA生成WSTRB=000F。时序仅是明确假设下的推导，不能当作实测。
+
 ## 下一步
 
-优先回答用户对AXI与写DMA的具体问题。若用户要求“下一讲/继续”，讲8 bit SRAM与128 bit AXI之间的双向打包/拆包、反压和完成协议，明确相关外围设计是待接入方案；之后进入第08讲ISA/Fetch/Decode/Dispatch。不要自动接回课程作业或跳去CIMFlow。
+优先回答用户对AXI、DMA和宽度适配的具体问题。若用户要求“下一讲/继续”，按原计划进入第08讲ISA/Fetch/Decode/Dispatch：先讲控制链路与模块位置、变量和单位、数据/控制流、源代码与时序，核对真实top和仿真路径。课程作业支线与项目主线独立，不自动把第三题作业视为本课已完成。
 
 每次完整讲义当次同步Zenia-123/NPU_learing的main/npu_docs，返回真实commit与文件链接。不额外布置练习题。需要实验时由用户亲自编写和运行，未经明确要求不代执行。保留用户代码，不修改上游RTL，除非用户随后明确要求。
 

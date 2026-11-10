@@ -17,7 +17,7 @@
 - 每次只推进一个可验证的小步骤，用户贴出代码或终端输出后再继续；
 - 未经用户再次明确要求，Codex 不代替用户运行仿真，也不把参考代码/参考检查说成用户已掌握。
 
-tiny-NPU 项目主线独立保留在 `npu_docs/`：已讲第07讲AXI读DMA、AXI基础及写DMA，最新讲义 `npu_docs/lesson-07-dma-axi-write.md`。用户尚未确认掌握，优先答疑；之后计划讲8 bit SRAM和128 bit AXI之间的宽度适配与完成协议。源码逐拍表为推导，未运行仿真。详细停点见 `npu_docs/handoff-tiny-npu-mainline.md`；它不阻塞本开放作业第三题。
+tiny-NPU 项目主线独立保留在 `npu_docs/`：已讲第07讲AXI基础、读写DMA及8 bit SRAM与128 bit AXI位宽适配，最新讲义 `npu_docs/lesson-07-sram-axi-width-adapter.md`。适配器为教学设计示意，未修改RTL或运行仿真，用户尚未确认掌握；优先答疑，继续主线时进入第08讲ISA/Fetch/Decode/Dispatch。详见 `npu_docs/handoff-tiny-npu-mainline.md`；这不改变本开放作业支线。
 
 ## 3. 用户信息
 
