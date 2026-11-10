@@ -63,3 +63,9 @@ npu_docs/lesson-07-supplement-axi-basics.md。
 
 每次完整讲义当次同步Zenia-123/NPU_learing的main/npu_docs，返回真实commit与文件链接。不额外布置练习题。需要实验时由用户亲自编写和运行，未经明确要求不代执行。保留用户代码，不修改上游RTL，除非用户随后明确要求。
 
+
+## 2026-11-10 第08讲上半停点
+
+用户要求下一步，已讲并同步 `npu_docs/lesson-08-ucode-fetch.md`：128 bit 微码字段、指令 SRAM 与按词计数的 pc/base/len、fetch 六状态、valid/ready 反压、同步 SRAM 沿后读数与下一沿捕获、源码逐段及正常/结束时序。用户尚未确认掌握，优先答疑；下一讲 Decode/Dispatch 与 Scoreboard。固定参考版本不变，未修改上游 RTL、未运行 HDL 仿真，时序为代码推导。
+
+关键边界：OP_END 在 WAIT_DATA 直接去 DONE，不向 Decode 交接；DONE 状态下产生 done_d，下一沿返回 IDLE 时 done_q=1 且 busy=0；len=0 仍会先发读请求；stop 不屏蔽 FETCH 的 rd_en 或 DISPATCH 的 instr_valid，stop 与 ready 同拍可能仍握手；top 的 stop 固定 0、指令 SRAM 写端关闭、Fetch base 置 0；top 的 16 位 fetch 地址实际 SRAM 默认 1024 深度只用低 10 位。
