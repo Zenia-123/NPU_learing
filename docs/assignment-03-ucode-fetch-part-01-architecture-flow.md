@@ -7,7 +7,7 @@
 本篇只讲硬件结构、控制流和数据流；用户尚未开始第三题 RTL、Testbench 或仿真。
 
 ## 2. 模块在 NPU 中的位置
-
+**ucode_fetch 用 FSM 控制 SRAM 读请求，用 PC 产生地址，用指令缓冲寄存器保存返回数据，并以 valid/ready 协议把指令安全交给 Decode。**
 ```text
 控制寄存器                           指令消费者
 start / base / len                      ucode_decode
