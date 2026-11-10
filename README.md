@@ -19,6 +19,10 @@
 13. Verilator 仿真、Testbench 与性能评估
 14. 架构优化与 CIMFlow / MRAM-CIM 衔接
 
+## 教学与交接
+
+学习要求见 [硬件与代码讲解要求](npu_docs/TEACHING_GUIDELINES.md)，继续学习先读取 [HANDOFF.md](HANDOFF.md) 与 [项目主线交接](npu_docs/handoff-tiny-npu-mainline.md)。
+
 ## 学习文档约定
 
 - `npu_docs/` 专门存放 tiny-NPU 项目主线讲义、补充、复习与交接，入口：[主线文档目录](npu_docs/README.md)。
@@ -32,4 +36,4 @@
 
 ## 当前主线进度
 
-第01～06讲及Ping-Pong补充已讲解；最新是[第07讲上：DMA与AXI读通路](npu_docs/lesson-07-dma-axi-read.md)。下一步为axi_dma_wr；详细停点见[主线交接](npu_docs/handoff-tiny-npu-mainline.md)。已讲解不等于用户已完全掌握。
+第01～07讲相关内容和第08讲Fetch已讲解；最近按用户要求回读[axi_dma_rd源码与变量](npu_docs/lesson-07-axi-dma-rd-code-walkthrough.md)。后续优先回答用户当前问题，进度以[主线交接](npu_docs/handoff-tiny-npu-mainline.md)为准；已讲解不等于用户已完全掌握。
