@@ -77,28 +77,44 @@ Fetch <-> Decode： instr_valid 提供指令；instr_ready 说明已接收
 
 ```text
 UCODE SRAM[base + pc]
-          |
-          | rd_data
-          v
-     instr_buf_q
-          |
-          | instr_data
-          v
-     ucode_decode
+        │
+        │ rd_data：128-bit
+        ▼
+  instr_buf_q
+        │
+        │ instr_data：128-bit
+        ▼
+  ucode_decode
+        │
+        └── 拆出 opcode、地址、M/N/K、立即数等字段，
+            再向 DMA、GEMM、向量单元等发命令
 ```
 
 `instr_buf_q` 是指令缓冲寄存器。它把 SRAM 返回的数据保存住，因此 Decode 忙时，Fetch 可以稳定地保持同一条指令，而不会被下一次 SRAM 读覆盖。
+```
+SRAM 已返回指令
+   ↓
+先锁存在 instr_buf_q
+   ↓
+Decode 不忙时再交付
+```
 
 ## 6. 控制流与六状态 FSM
-
+控制流决定”此刻该读SRAM、等SRAM、等Decode还是结束“
 ```text
-S_IDLE --start--> S_FETCH --> S_WAIT_DATA --> S_DISPATCH --> S_INCREMENT
-                         |          |                |               |
-                         |          |                |               +-- 未结束 --> S_FETCH
-                         |          |                |               +-- 到长度 --> S_DONE
-                         |          |                +-- ready=0：保持 S_DISPATCH
-                         |          +-- OP_END/stop --> S_DONE
-                         +-- 发出 SRAM 读请求
+
+start
+  │
+  ▼
+S_IDLE ──> S_FETCH ──> S_WAIT_DATA ──> S_DISPATCH ──> S_INCREMENT
+              |          │                  │                 │
+       发出SRAM读请求      │                  │                 ├─ 未结束 → S_FETCH
+                         │                  │                 └─ 长度结束 → S_DONE
+                         │                  │
+                         │                  └─ Decode 忙 → 停在这里
+                         │
+                         ├─ OP_END → S_DONE
+                         └─ stop   → S_DONE
 
 S_DONE --> S_IDLE
 ```
@@ -112,7 +128,51 @@ S_DONE --> S_IDLE
 | `S_INCREMENT` | `pc=pc+1` | 判断新 PC 是否达到 `len` |
 | `S_DONE` | 无新数据 | `done=1` 一个周期，随后返回空闲 |
 
+
+```
+① S_FETCH：
+控制流决定“现在发 SRAM 读请求”
+数据路径据此计算 rd_addr = base + pc
+
+② S_WAIT_DATA：
+控制流等待 rd_valid
+数据路径把 rd_data 写入 instr_buf
+
+③ S_DISPATCH：
+控制流等待 instr_ready
+数据路径保持 instr_buf 不变，并送到 instr_data
+```
+尤其是 S_DISPATCH：
+```
+instr_valid=1，instr_ready=0
+```
+表示“Fetch 手里有一条指令，但 Decode 忙”。此时：
+       PC 不加一
+       不发下一次 SRAM 读
+       instr_buf 不改变
+       instr_valid 持续为 1
+这避免下一条指令覆盖当前还没被接收的指令。
+
 ## 7. 正常读取一条指令的逐拍过程
+```
+控制寄存器发 start
+      ↓
+Fetch 锁存 base、len，PC=0
+      ↓
+Fetch 发 rd_en，地址=base+0
+      ↓
+SRAM 一拍后返回 128-bit 指令
+      ↓
+Fetch 把指令锁进 instr_buf
+      ↓
+Fetch 拉高 instr_valid
+      ↓
+Decode 拉高 instr_ready，接收指令
+      ↓
+PC 加一
+      ↓
+继续取下一条，或进入 done
+```
 
 设 `base=100`、`pc=0`，且 Decode 始终 `instr_ready=1`。
 
