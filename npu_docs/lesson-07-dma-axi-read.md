@@ -114,8 +114,16 @@ parameter int MAX_BURST_LEN = 16;
 localparam int BYTES_PER_BEAT = AXI_DATA_W / 8;
 localparam int BEAT_SHIFT     = $clog2(BYTES_PER_BEAT);
 ~~~
-
+$$
+\text{每个beat的数据量}
+=\frac{128}{8}
+=16\ \text{Byte}
+$$
+- **Byte**：字节数量。
+- **beat**：一份数据通过握手完成传输。
+- **burst**：一个地址请求对应的一组beat。
 得到每beat为16 Byte、BEAT_SHIFT为4。这里按16 Byte对齐的地址和完整16 Byte数据项讲解本模块。
+每个burst最多16个beat，即最多256 Byte。
 
 | 名称 | 默认值或表达式 | 单位/意义 |
 |---|---:|---|
