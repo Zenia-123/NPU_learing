@@ -34,6 +34,7 @@ tiny-NPU 项目主线独立保留在 `npu_docs/`：第 07 讲上半部分 DMA AX
 - [x] 第二题完成硬件第一讲和基线协议讲义：
   - `docs/assignment-02-tile-buffer-part-01-hardware.md`
   - `docs/assignment-02-tile-buffer-part-02-rtl-protocol.md`
+- [x] 第三题硬件第一讲已完成并保存为 `docs/assignment-03-ucode-fetch-part-01-architecture-flow.md`，覆盖整体硬件框架、两组握手、数据流、控制流、六状态 FSM、反压和结束条件。
 - [x] 第二题的 GitHub 参考基线已同步：
   - `assignments/assignment-02-tile-buffer/rtl/tile_buffer.v`
   - `assignments/assignment-02-tile-buffer/tb/tile_buffer_tb.v`
@@ -44,15 +45,9 @@ tiny-NPU 项目主线独立保留在 `npu_docs/`：第 07 讲上半部分 DMA AX
 
 ## 5. 当前进度
 
-当前应直接开始第三题的第一讲，主题为 `ucode_fetch`：它从 128-bit 微码 SRAM 顺序读取指令，通过 `instr_valid/instr_ready` 向 decode 交付，并用六状态 FSM 处理同步读延迟、下游反压、`OP_END`、`stop` 与程序长度结束。
+第三题硬件第一讲已完成，讲义为 `docs/assignment-03-ucode-fetch-part-01-architecture-flow.md`。`ucode_fetch` 从 128-bit 微码 SRAM 顺序读取指令，通过 `instr_valid/instr_ready` 向 decode 交付，并用六状态 FSM 处理同步读延迟、下游反压、`OP_END`、`stop` 与程序长度结束。
 
-第三题第一讲必须先完成以下内容，暂不创建代码文件：
-
-1. 模块在“控制寄存器 → UCODE SRAM → Fetch → Decode/Dispatch”链路中的位置；
-2. 说明 `start/stop`、`rd_en/rd_addr/rd_valid/rd_data`、`instr_valid/instr_ready/instr_data`、`pc/done/busy` 的方向、单位和有效周期；
-3. 解释六个状态：`S_IDLE`、`S_FETCH`、`S_WAIT_DATA`、`S_DISPATCH`、`S_INCREMENT`、`S_DONE`；
-4. 用逐拍表推导正常取一条指令、Decode 反压、`OP_END` 与 `stop` 四个场景；
-5. 明确第三题实验采用简化的 Verilog-2005 协议后，才让用户亲自创建 `assignment/ucode_fetch/` 目录。
+下一步应先让用户亲自创建 `assignment/ucode_fetch/{rtl,tb,build,waves}` 目录并贴出结果；然后共同固定简化 Verilog-2005 接口和边界，再开始写代码。
 
 第二题的 VCD/结果保留，未来用户要求时从 `vvp` 输出和 GTKWave 信号观察继续，不需要重写代码。
 
@@ -64,6 +59,7 @@ tiny-NPU 项目主线独立保留在 `npu_docs/`：第 07 讲上半部分 DMA AX
   - `HANDOFF.md`
   - `docs/assignment-02-tile-buffer-part-01-hardware.md`
   - `docs/assignment-02-tile-buffer-part-02-rtl-protocol.md`
+  - `docs/assignment-03-ucode-fetch-part-01-architecture-flow.md`
   - `assignments/assignment-02-tile-buffer/rtl/tile_buffer.v`（GitHub 参考基线）
   - `assignments/assignment-02-tile-buffer/tb/tile_buffer_tb.v`（GitHub 参考基线）
   - `npu_docs/README.md`、`npu_docs/lesson-01-*` 至 `lesson-07-dma-axi-read.md`、`npu_docs/handoff-tiny-npu-mainline.md`
@@ -84,13 +80,12 @@ tiny-NPU 项目主线独立保留在 `npu_docs/`：第 07 讲上半部分 DMA AX
 
 ## 7. 需要交接的计划
 
-1. 立即开始第三题硬件第一讲：以 tiny-NPU 的 `rtl/ctrl/ucode_fetch.sv` 为参考，先讲结构和逐拍时序，不贴完整 RTL。
-2. 用户确认第一讲后，亲自创建 `ucode_fetch/{rtl,tb,build,waves}` 目录并贴出目录结果。
-3. 共同固定简化版实验规格：指令宽度、指令存储深度、启动/停止、同步读延迟、valid/ready、程序结束和早到 `stop` 的处理。
-4. 先画四类周期表，再让用户分段写 Verilog-2005：端口与状态编码、寄存器、组合下一状态、时序寄存器更新。
-5. 用户再分段写 Testbench：复位、正常三条指令、Decode 反压、`OP_END`、`stop` 和长度到达。
-6. 用户亲自执行 `iverilog -g2005`、`vvp`、GTKWave；Codex 根据真实输出与波形排错。
-7. 第三题闭环后，整理报告与 GitHub 同步；若用户要求，回到第二题依据现有 VCD 完成 PASS/FAIL 与波形确认。
+1. 用户亲自创建 `ucode_fetch/{rtl,tb,build,waves}` 目录并贴出目录结果。
+2. 共同固定简化版实验规格：指令宽度、指令存储深度、启动/停止、同步读延迟、valid/ready、程序结束和早到 `stop` 的处理。
+3. 先画四类周期表，再让用户分段写 Verilog-2005：端口与状态编码、寄存器、组合下一状态、时序寄存器更新。
+4. 用户再分段写 Testbench：复位、正常三条指令、Decode 反压、`OP_END`、`stop` 和长度到达。
+5. 用户亲自执行 `iverilog -g2005`、`vvp`、GTKWave；Codex 根据真实输出与波形排错。
+6. 第三题闭环后，整理报告与 GitHub 同步；若用户要求，回到第二题依据现有 VCD 完成 PASS/FAIL 与波形确认。
 
 新对话只需说明：
 
