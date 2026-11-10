@@ -57,9 +57,17 @@ npu_docs/lesson-07-supplement-axi-basics.md。
 
 读向单缓冲示例E0接收首beat、E1～E16写16 Byte、E17接收尾beat、E18～E21写尾4 Byte；最后R握手后读DMA在E18沿后done，本地E21才写完，必须保存done/error并等待本地提交。写向E0发SRAM读、E1捕获首Byte、E16捕获第16个并沿后置valid，最早E17握手；尾4 Byte由写DMA生成WSTRB=000F。时序仅是明确假设下的推导，不能当作实测。
 
+## 2026-11-10 当前用户要求：按源码精读axi_dma_rd
+
+用户明确要求“按照程序顺序，先讲清楚逻辑再讲清楚代码”，并补充“说明变量的含义作用”。最新讲义：npu_docs/lesson-07-axi-dma-rd-code-walkthrough.md。分端口、内部寄存器和组合量逐项给出位宽、单位、作用、变化时机，按模块头→常数→状态→burst计算→下一状态→状态寄存器→数据通路→AR/R输出→状态输出逐段精读；贯穿对齐20 Byte、RLAST反压与4KiB边界算例。未运行仿真；用户尚未确认掌握，先回答该模块的后续问题。
+
+注意beat_cnt、total_beats和beats_done虽然维护，但本源码未用它们判定状态或核验RLAST；RLAST/RID没有交叉检查。最终beat沿前剩余量非零，正常经CALC再DONE；data_last在ready=0时可为1但并未交付；尾部没有keep且可能多读；错误粘滞至下一命令；top读流仍是占位。
+
+这次为用户主动要求回读第07讲，不删除已有第08讲fetch进度；若用户以后明确要求下一讲并且本模块疑问已解决，原有第08讲后续建议为Decode/Dispatch与Scoreboard。作业支线保持独立。
+
 ## 下一步
 
-优先回答用户对AXI、DMA和宽度适配的具体问题。若用户要求“下一讲/继续”，按原计划进入第08讲ISA/Fetch/Decode/Dispatch：先讲控制链路与模块位置、变量和单位、数据/控制流、源代码与时序，核对真实top和仿真路径。课程作业支线与项目主线独立，不自动把第三题作业视为本课已完成。
+优先按当前用户要求解答axi_dma_rd、AXI及宽度适配的具体问题；已有第08讲fetch详见文末停点，若用户之后明确要求下一讲，继续Decode/Dispatch与Scoreboard，核对真实top和仿真路径。课程作业支线与项目主线独立，不自动把第三题作业视为本课已完成。
 
 每次完整讲义当次同步Zenia-123/NPU_learing的main/npu_docs，返回真实commit与文件链接。不额外布置练习题。需要实验时由用户亲自编写和运行，未经明确要求不代执行。保留用户代码，不修改上游RTL，除非用户随后明确要求。
 
