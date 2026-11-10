@@ -1,6 +1,7 @@
 # tiny-NPU 整体硬件结构：数据流、控制流与指令流
 
 本页是已学内容的补充总览，不改变课程进度，也不表示第 08 讲已学完。源码以 [harishsg993010/tiny-NPU 固定版本 8216c22](https://github.com/harishsg993010/tiny-NPU/tree/8216c22b762011aa20c05fc2768423fd12dda59d) 为准。此处区分**项目功能结构示意**和 **rtl/top.sv 实际连接**，两张图不能混为一谈。
+<img width="522" height="1033" alt="image" src="https://github.com/user-attachments/assets/5c8a5070-89e6-4a97-865d-644e67b5b04e" />
 
 ## 一、项目功能结构示意
 
