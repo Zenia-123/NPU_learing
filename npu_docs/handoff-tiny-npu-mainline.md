@@ -1,6 +1,6 @@
 # tiny-NPU项目主线交接
 
-更新：2026-11-09。
+更新：2026-11-10。
 
 ## 对话范围、目录与优先级
 
@@ -37,6 +37,13 @@ npu_docs/lesson-07-dma-axi-read.md。
 - onnx_sim_top.sv使用DMA Shim向C++暴露命令，没有实例化两个AXI DMA。
 - 有适配缓冲时，读DMA done可能早于最后字节真正落入SRAM，不能无条件等同next_tile_ready。
 - 本讲未修改RTL、未运行HDL仿真、无VCD；逐拍表是源码推导。
+
+## 当前基础补充停点
+
+2026-11-10用户明确“没有学过AXI”，要求先快速介绍AXI及其具体内容。已补充：
+npu_docs/lesson-07-supplement-axi-basics.md。
+
+内容为AXI用途、AXI4/Lite/Stream区别、主从角色、五通道、VALID/READY、读写事务、byte/beat/burst及tiny-NPU信号对应。快速介绍不等于掌握，不能默认用户已理解握手、burst或各通道的独立性。优先回答AXI基础问题，再回到DMA源码；原计划后续仍为axi_dma_wr。未运行仿真，示例表为协议说明。
 
 ## 下一步
 

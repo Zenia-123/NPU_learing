@@ -14,9 +14,10 @@
 | 04 | 脉动阵列与逐周期数据流 | [脉动阵列](lesson-04-systolic-array.md) |
 | 05 | GEMM源码与控制 | [源码精读](lesson-05-gemm-code-walkthrough.md)、[控制器设计经验](lesson-05-gemm-controller-design-patterns.md)、[gemm_post](lesson-05-gemm-post.md) |
 | 06 | SRAM、Bank与Buffer | [存储结构](lesson-06-sram-bank-buffer.md)、[Ping-Pong与流水](lesson-06-supplement-ping-pong-pipeline.md) |
+| 07补充 | AXI零基础快速介绍 | [AXI基础](lesson-07-supplement-axi-basics.md) |
 | 07上 | DMA与AXI读通路 | [axi_dma_rd](lesson-07-dma-axi-read.md) |
 
-第07讲上已讲解，尚未由用户确认完全掌握。下一步优先回答具体问题；要求继续时进入axi_dma_wr，随后讲宽度适配与本地落存完成，再进入第08讲ISA/Fetch/Decode/Dispatch。
+第07讲上已讲解；2026-11-10因用户明确未学过AXI，先补充AXI基础。尚未由用户确认掌握，优先解答AXI问题，再回到DMA源码；原计划后续为axi_dma_wr、宽度适配与本地落存完成，再进入第08讲ISA/Fetch/Decode/Dispatch。
 
 ## 学习地图与历史资料
 
