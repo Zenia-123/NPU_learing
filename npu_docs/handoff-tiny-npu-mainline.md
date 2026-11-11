@@ -1,6 +1,6 @@
 # tiny-NPU项目主线交接
 
-更新：2026-11-10。
+更新：2026-11-11。
 
 **长期教学规范：**继续项目主线前先读取 [硬件与代码讲解要求](TEACHING_GUIDELINES.md)。新模块先讲硬件/架构、结构、数据流/控制流及适用的指令流；源码按文件顺序逐段先讲逻辑再讲代码，解释变量含义、作用、位宽、单位和时序。用户当前具体问题优先，既有学习与作业进度不因此重置。
 
@@ -67,9 +67,15 @@ npu_docs/lesson-07-supplement-axi-basics.md。
 
 这次为用户主动要求回读第07讲，不删除已有第08讲fetch进度；若用户以后明确要求下一讲并且本模块疑问已解决，原有第08讲后续建议为Decode/Dispatch与Scoreboard。作业支线保持独立。
 
+## 2026-11-11 当前用户问题：axi_dma_wr源码顺序精读
+
+用户主动要求“讲解一下axi_dma_wr”，按照npu_docs/TEACHING_GUIDELINES.md讲解硬件、数据/控制与适用的指令路径，再按真实文件顺序每段先讲逻辑再讲代码和变量。最新讲义：npu_docs/lesson-07-axi-dma-wr-code-walkthrough.md。覆盖全部端口、内部组合/时序量的含义、位宽、单位与更新时机，按声明→常数→状态/寄存器→burst拆分→WSTRB→下一状态→寄存器→AW/W/B/状态输出顺序，采用20 Byte与4KiB边界具体例子。
+
+时序是源码推导，未运行仿真。最后W握手进入WAIT_BRESP、最后B握手后直接DONE；20 Byte尾项WSTRB=000F；WLAST每burst一次；data_last未使用、BID未核验；上游必须在反压时保持valid和数据。固定版本top的写数据端为占位，模块error未接到顶层npu_error。用户尚未确认掌握，优先回答具体问题，保留已讲第08讲fetch和独立作业进度。
+
 ## 下一步
 
-优先按当前用户要求解答axi_dma_rd、AXI及宽度适配的具体问题；已有第08讲fetch详见文末停点，若用户之后明确要求下一讲，继续Decode/Dispatch与Scoreboard，核对真实top和仿真路径。课程作业支线与项目主线独立，不自动把第三题作业视为本课已完成。
+优先回答用户对axi_dma_wr、axi_dma_rd、AXI与宽度适配的具体问题；第08讲fetch已讲但未确认掌握，若用户之后明确要求下一讲，再结合当时进度继续Decode/Dispatch与Scoreboard。课程作业支线保持独立。
 
 每次完整讲义当次同步Zenia-123/NPU_learing的main/npu_docs，返回真实commit与文件链接。不额外布置练习题。需要实验时由用户亲自编写和运行，未经明确要求不代执行。保留用户代码，不修改上游RTL，除非用户随后明确要求。
 

@@ -22,10 +22,11 @@
 | 07上 | DMA与AXI读通路 | [axi_dma_rd](lesson-07-dma-axi-read.md) |
 | 07精读 | axi_dma_rd逐段与变量 | [读DMA源码顺序精读](lesson-07-axi-dma-rd-code-walkthrough.md) |
 | 07下 | DMA与AXI写通路 | [axi_dma_wr](lesson-07-dma-axi-write.md) |
+| 07精读 | axi_dma_wr逐段与变量 | [写DMA源码顺序精读](lesson-07-axi-dma-wr-code-walkthrough.md) |
 | 07补充 | SRAM与AXI的位宽适配 | [8 bit与128 bit适配](lesson-07-sram-axi-width-adapter.md) |
 | 08上 | 取指与微码 | [ucode_fetch](lesson-08-ucode-fetch.md) |
 
-第07讲已按用户请求重新精读axi_dma_rd源码和变量；第08讲fetch也已讲解，二者均尚未确认掌握。优先回答用户当前具体问题；后续按进度进入Decode/Dispatch与Scoreboard。
+第07讲已按用户要求重新精读axi_dma_rd和axi_dma_wr源码与变量；第08讲fetch也已讲解，尚未确认掌握。优先回答当前具体问题；后续按进度进入Decode/Dispatch与Scoreboard。
 
 ## 学习地图与历史资料
 

@@ -19,7 +19,7 @@
 - 每次只推进一个可验证的小步骤，用户贴出代码或终端输出后再继续；
 - 未经用户再次明确要求，Codex 不代替用户运行仿真，也不把参考代码/参考检查说成用户已掌握。
 
-tiny-NPU 项目主线独立保留在 `npu_docs/`：已讲第07讲AXI、读写DMA、宽度适配和第08讲fetch；用户最新要求按程序顺序重新精读 `axi_dma_rd` 并说明每个变量，见 `npu_docs/lesson-07-axi-dma-rd-code-walkthrough.md`。优先解答当前问题，已讲不等于掌握；后续第08讲计划继续Decode/Dispatch与Scoreboard。源码时序是推导，未运行仿真。详见 `npu_docs/handoff-tiny-npu-mainline.md`；本说明不改变开放作业支线。
+tiny-NPU 项目主线独立保留在 `npu_docs/`：已讲第07讲AXI、读写DMA、宽度适配和第08讲fetch；用户最新要求重新精读 `axi_dma_wr`，按硬件→变量→程序顺序逐段逻辑与源码、逐拍时序讲解，见 `npu_docs/lesson-07-axi-dma-wr-code-walkthrough.md`。优先解答当前问题，已讲不等于掌握；后续按进度继续Decode/Dispatch与Scoreboard。时序是源码推导，未运行仿真。详见 `npu_docs/handoff-tiny-npu-mainline.md`；本说明不改变开放作业支线。
 
 ## 3. 用户信息
 
