@@ -85,3 +85,9 @@ npu_docs/lesson-07-supplement-axi-basics.md。
 用户要求下一步，已讲并同步 `npu_docs/lesson-08-ucode-fetch.md`：128 bit 微码字段、指令 SRAM 与按词计数的 pc/base/len、fetch 六状态、valid/ready 反压、同步 SRAM 沿后读数与下一沿捕获、源码逐段及正常/结束时序。用户尚未确认掌握，优先答疑；下一讲 Decode/Dispatch 与 Scoreboard。固定参考版本不变，未修改上游 RTL、未运行 HDL 仿真，时序为代码推导。
 
 关键边界：OP_END 在 WAIT_DATA 直接去 DONE，不向 Decode 交接；DONE 状态下产生 done_d，下一沿返回 IDLE 时 done_q=1 且 busy=0；len=0 仍会先发读请求；stop 不屏蔽 FETCH 的 rd_en 或 DISPATCH 的 instr_valid，stop 与 ready 同拍可能仍握手；top 的 stop 固定 0、指令 SRAM 写端关闭、Fetch base 置 0；top 的 16 位 fetch 地址实际 SRAM 默认 1024 深度只用低 10 位。
+
+## 2026-11-12 第08讲下半：Decode / Dispatch
+
+用户要求下一讲，已讲并同步 `npu_docs/lesson-08-ucode-decode-dispatch.md`：硬件结构、128 bit 指令拆字段、端口/寄存器位宽、opcode目标映射、D_IDLE/D_DECODE/D_BARRIER、发射与busy登记时序、Scoreboard与Barrier、引擎命令输出路由，以及正常/阻塞/屏障逐沿表。用户尚未确认掌握，优先答疑；后续可深入Scoreboard及Barrier，或按用户新问题继续。固定源码8216c22，未修改上游RTL、未运行仿真，逐拍表为推导。独立作业线保持原状。
+
+关键：Decode DMA长度输出由N字段取得，README表格提到M，与实际RTL有差异；Fetch拦截END导致Decode END分支在此路径通常不可达；固定top计算引擎为stub，barrier_stall未反馈Decode，屏障等待由D_BARRIER检查all_idle实现。正常指令E0握手沿后cmd_valid/issue有效，E1沿Scoreboard采样并置busy；scoreboard同引擎done与issue同拍时RTL最终清零优先。top仅管理6个引擎，6/7 can_issue补1但RMSNorm/RoPE输出未接；注意用户不可误认为完整系统已经实现。
