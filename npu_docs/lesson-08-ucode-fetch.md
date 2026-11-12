@@ -3,6 +3,7 @@
 本讲是 tiny-NPU 项目主线，基于 [固定版本 8216c22](https://github.com/harishsg993010/tiny-NPU/tree/8216c22b762011aa20c05fc2768423fd12dda59d)。讲解顺序：硬件结构 → 变量含义和单位 → 数据与控制流 → 源码 → 时序。仅按源码分析，没有修改上游 RTL 或运行仿真。
 
 ## 1. 在整个 NPU 中的位置
+![Uploading image.png…]()
 
 ```mermaid
 flowchart LR
