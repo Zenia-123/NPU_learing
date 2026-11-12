@@ -14,20 +14,7 @@
 Decode 本身不做 GEMM，不读矩阵数据。它是**指令译码与发射控制**，将指令字段翻译成下游控制信息。
 
 ### 系统位置
-<img width="1542" height="522" alt="image" src="https://github.com/user-attachments/assets/326fcfef-8306-4f83-978a-f795cb7e0863" />
 
-整个过程可以拆成四步：
-
-1. 主机配置控制寄存器，启动取指。
-2. `ucode_fetch` 向指令 SRAM 发出**读地址和读使能**。
-3. SRAM 返回一条 128 bit 指令，Fetch 将它缓存。
-4. Decode 准备好接收时，Fetch 将指令交给 Decode。
-
-| 模块 | 做什么 |
-| --- | --- |
-| UCODE SRAM | 保存程序中的微指令 |
-| `ucode_fetch` | 按顺序把指令读出来 |
-| `ucode_decode` | 解析指令并生成执行命令 |
 ```mermaid
 flowchart TB
     F["Fetch / 指令缓冲"] -->|"instr_data / valid"| D["Decode / Dispatch"]
@@ -71,10 +58,12 @@ Fetch 输出 `instr_data` 和 `instr_valid`。Decode 组合拆字段、检查 op
 其中 A 为 2×4，B 为 4×3，C 为 2×3；地址字段是按下游存储接口解释的位置，不包含实际矩阵元素。128 bit 编码为 `128'h0000_0004_0003_0002_0300_0100_0500_0003`。握手沿后，字段进入命令寄存器，GEMM 的 valid 与参数出现在输出端。
 
 ### 2. 数据流
+
 | 存储器 | 主要保存什么 | 谁来访问 |
 | --- | --- | --- |
 | **UCODE SRAM** | 微码指令 | 主要由 Fetch 读取 |
 | **数据 SRAM** | 输入、权重、结果等计算数据 | GEMM、其他引擎或搬运逻辑 |
+
 指令SRAN是如何寻址的？
 每个地址存一条128bit的指令/
 深度：1024 个存储单元
