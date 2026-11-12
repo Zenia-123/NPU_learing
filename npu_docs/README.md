@@ -25,8 +25,10 @@
 | 07精读 | axi_dma_wr逐段与变量 | [写DMA源码顺序精读](lesson-07-axi-dma-wr-code-walkthrough.md) |
 | 07补充 | SRAM与AXI的位宽适配 | [8 bit与128 bit适配](lesson-07-sram-axi-width-adapter.md) |
 | 08上 | 取指与微码 | [ucode_fetch](lesson-08-ucode-fetch.md) |
+| 08下 | 译码与指令分发 | [Decode / Dispatch](lesson-08-ucode-decode-dispatch.md) |
+| 09 | Scoreboard与Barrier | [忙闲管理与屏障同步](lesson-09-scoreboard-barrier.md) |
 
-第07讲已按用户要求重新精读axi_dma_rd和axi_dma_wr源码与变量；第08讲fetch也已讲解，尚未确认掌握。优先回答当前具体问题；后续按进度进入Decode/Dispatch与Scoreboard。
+已讲解至第09讲Scoreboard与Barrier，用户尚未确认掌握。优先回答当前具体问题；后续依据理解情况和学习指南继续。
 
 ## 学习地图与历史资料
 

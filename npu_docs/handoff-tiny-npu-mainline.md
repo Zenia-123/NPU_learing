@@ -75,7 +75,7 @@ npu_docs/lesson-07-supplement-axi-basics.md。
 
 ## 下一步
 
-优先回答用户对axi_dma_wr、axi_dma_rd、AXI与宽度适配的具体问题；第08讲fetch已讲但未确认掌握，若用户之后明确要求下一讲，再结合当时进度继续Decode/Dispatch与Scoreboard。课程作业支线保持独立。
+优先回答用户对Scoreboard、Barrier及之前模块的具体问题；已讲解不等于已掌握。用户要求下一讲时，依据当时理解与学习指南选择后续模块。课程作业支线保持独立。
 
 每次完整讲义当次同步Zenia-123/NPU_learing的main/npu_docs，返回真实commit与文件链接。不额外布置练习题。需要实验时由用户亲自编写和运行，未经明确要求不代执行。保留用户代码，不修改上游RTL，除非用户随后明确要求。
 
@@ -91,3 +91,10 @@ npu_docs/lesson-07-supplement-axi-basics.md。
 用户要求下一讲，已讲并同步 `npu_docs/lesson-08-ucode-decode-dispatch.md`：硬件结构、128 bit 指令拆字段、端口/寄存器位宽、opcode目标映射、D_IDLE/D_DECODE/D_BARRIER、发射与busy登记时序、Scoreboard与Barrier、引擎命令输出路由，以及正常/阻塞/屏障逐沿表。用户尚未确认掌握，优先答疑；后续可深入Scoreboard及Barrier，或按用户新问题继续。固定源码8216c22，未修改上游RTL、未运行仿真，逐拍表为推导。独立作业线保持原状。
 
 关键：Decode DMA长度输出由N字段取得，README表格提到M，与实际RTL有差异；Fetch拦截END导致Decode END分支在此路径通常不可达；固定top计算引擎为stub，barrier_stall未反馈Decode，屏障等待由D_BARRIER检查all_idle实现。正常指令E0握手沿后cmd_valid/issue有效，E1沿Scoreboard采样并置busy；scoreboard同引擎done与issue同拍时RTL最终清零优先。top仅管理6个引擎，6/7 can_issue补1但RMSNorm/RoPE输出未接；注意用户不可误认为完整系统已经实现。
+
+
+## 2026-11-12 第09讲：Scoreboard 与 Barrier
+
+用户要求下一讲，已讲并同步 `npu_docs/lesson-09-scoreboard-barrier.md`：以固定版本源码为准，先介绍引擎忙闲、跨引擎依赖、屏障数据/控制/指令流，再按 scoreboard.sv 与 barrier.sv 源码顺序解释变量、组合与寄存器、状态机、顶层接线和逐沿时序。用户尚未确认掌握，优先答疑；未修改上游RTL，未运行仿真，时序为静态推导。作业支线保持独立。
+
+关键事实：每引擎1个busy位并不跟踪内存地址或自动检查数据依赖；6个bit对应GEMM、Softmax、LayerNorm、GELU、Vec及DMA读写合并；同bit issue和done同时出现时最终清零优先，接口没有自动补发；can_issue取busy_q取反，没有done组合旁路。Decode发射通知与引擎实际ready握手不能等同。独立barrier输出寄存stall/done，但固定top没有将barrier_stall接回Fetch/Decode，实际等待由Decode自己的D_BARRIER加all_idle完成。前五引擎是计时stub，不能声称当前top完整计算。完成沿观察旧all_idle，等待逻辑需后续沿才响应；6/7补1但对应输出未接、不受6位scoreboard管理。异常同拍与功能是否可达需明确假设，不视为实测。
