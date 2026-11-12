@@ -98,3 +98,9 @@ npu_docs/lesson-07-supplement-axi-basics.md。
 用户要求下一讲，已讲并同步 `npu_docs/lesson-09-scoreboard-barrier.md`：以固定版本源码为准，先介绍引擎忙闲、跨引擎依赖、屏障数据/控制/指令流，再按 scoreboard.sv 与 barrier.sv 源码顺序解释变量、组合与寄存器、状态机、顶层接线和逐沿时序。用户尚未确认掌握，优先答疑；未修改上游RTL，未运行仿真，时序为静态推导。作业支线保持独立。
 
 关键事实：每引擎1个busy位并不跟踪内存地址或自动检查数据依赖；6个bit对应GEMM、Softmax、LayerNorm、GELU、Vec及DMA读写合并；同bit issue和done同时出现时最终清零优先，接口没有自动补发；can_issue取busy_q取反，没有done组合旁路。Decode发射通知与引擎实际ready握手不能等同。独立barrier输出寄存stall/done，但固定top没有将barrier_stall接回Fetch/Decode，实际等待由Decode自己的D_BARRIER加all_idle完成。前五引擎是计时stub，不能声称当前top完整计算。完成沿观察旧all_idle，等待逻辑需后续沿才响应；6/7补1但对应输出未接、不受6位scoreboard管理。异常同拍与功能是否可达需明确假设，不视为实测。
+
+## 2026-11-12 LLM 微码产生和加载答疑
+
+用户追问微码从哪来、软件如何与硬件连接；已基于固定版 8216c22 深入解释并提交 `npu_docs/supplement-llm-microcode-generation-loading.md`。真实 GPT-2 block 测试采用 C++ 的 load_microcode→encode_instr→ucode_write→tick，写 gpt2_block_top 指令 SRAM B 口；不依赖 Python 汇编器生成的文件。例子 Q头 M=8 N=16 K=64，h0 hi=0901_0040_0010_0008、lo=0000_C400_C800_0403。Fetch SRAM A口读、Decode依ISA拆字段。gpt2顶层 program_end 等 fetch_done latch 和 all_idle，DMA由测试C++ shim处理，RTL top不同且微码写端关闭；CMake目标将SRAM0深度覆盖为65536。
+
+Python ucode_asm.py parse_line 将 key lower 而字段字典 M/N/K 大写，因此文本 M/N/K被静默忽略默认0，gen-tiny也经assemble；其hex每条4行32-bit，不自动适配128-bit SRAM一行一词。均为静态源码分析，未运行仿真或修改上游。答疑不改变课程主线/作业进度；用户未确认掌握，优先解答相关问题。
