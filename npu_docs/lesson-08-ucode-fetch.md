@@ -3,7 +3,25 @@
 本讲是 tiny-NPU 项目主线，基于 [固定版本 8216c22](https://github.com/harishsg993010/tiny-NPU/tree/8216c22b762011aa20c05fc2768423fd12dda59d)。讲解顺序：硬件结构 → 变量含义和单位 → 数据与控制流 → 源码 → 时序。仅按源码分析，没有修改上游 RTL 或运行仿真。
 
 ## 1. 在整个 NPU 中的位置
-![Uploading image.png…]()
+
+<img width="1223" height="1588" alt="image" src="https://github.com/user-attachments/assets/4faba830-eda5-4323-ae53-16106be7563a" />
+
+
+<img width="1542" height="522" alt="image" src="https://github.com/user-attachments/assets/326fcfef-8306-4f83-978a-f795cb7e0863" />
+
+整个过程可以拆成四步：
+
+1. 主机配置控制寄存器，启动取指。
+2. `ucode_fetch` 向指令 SRAM 发出**读地址和读使能**。
+3. SRAM 返回一条 128 bit 指令，Fetch 将它缓存。
+4. Decode 准备好接收时，Fetch 将指令交给 Decode。
+
+| 模块 | 做什么 |
+| --- | --- |
+| UCODE SRAM | 保存程序中的微指令 |
+| `ucode_fetch` | 按顺序把指令读出来 |
+| `ucode_decode` | 解析指令并生成执行命令 |
+
 
 ```mermaid
 flowchart LR
