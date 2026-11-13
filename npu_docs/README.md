@@ -30,6 +30,8 @@
 
 已讲解至第09讲Scoreboard与Barrier，用户尚未确认掌握。优先回答当前具体问题；后续依据理解情况和学习指南继续。
 
+专题答疑：[GPT-2 微码生成、装载、RTL 取指与 Python 汇编器](supplement-gpt2-ucode-end-to-end-walkthrough.md)。
+
 ## 学习地图与历史资料
 
 - [完整学习指南](tiny-npu-study-guide.md)
@@ -42,3 +44,4 @@
 ## 文档约定
 
 按“硬件结构→变量含义与单位→数据/控制流→代码顺序与时序”讲解；每次完整主线Markdown同步到main分支的npu_docs/，报告真实commit。已讲过不等于已掌握，不额外布置练习题。需要实验时由用户亲自编写和执行，未经明确要求不代运行。
+

@@ -19,7 +19,7 @@
 - 每次只推进一个可验证的小步骤，用户贴出代码或终端输出后再继续；
 - 未经用户再次明确要求，Codex 不代替用户运行仿真，也不把参考代码/参考检查说成用户已掌握。
 
-tiny-NPU 项目主线独立保留在 `npu_docs/`：第08讲 fetch 与 Decode / Dispatch 已讲；2026-11-12继续第09讲 Scoreboard 与 Barrier，见 `npu_docs/lesson-09-scoreboard-barrier.md`。已讲解不等于用户已掌握，优先答疑。时序是源码推导，未运行仿真。详见 `npu_docs/handoff-tiny-npu-mainline.md`；本说明不改变开放作业支线。
+tiny-NPU 项目主线独立保留在 `npu_docs/`：第09讲 Scoreboard 与 Barrier 已讲，随后讲解了 GPT-2 测试中的微码编码、装载、RTL 取指和独立 Python 汇编器，见 `npu_docs/supplement-gpt2-ucode-end-to-end-walkthrough.md`。已讲解不等于用户已掌握，优先答疑。RTL 时序为源码推导，未运行 RTL 仿真；Python 汇编器单独运行检查。详见 `npu_docs/handoff-tiny-npu-mainline.md`；本说明不改变开放作业支线。
 
 ## 3. 用户信息
 
@@ -92,3 +92,4 @@ tiny-NPU 项目主线独立保留在 `npu_docs/`：第08讲 fetch 与 Decode / D
 新对话只需说明：
 
 > 读取 `Zenia-123/NPU_learing` 的 `HANDOFF.md`，继续第三实验 `ucode_fetch`；先讲硬件结构和逐拍时序，由我亲自写代码和运行命令。
+

@@ -104,3 +104,9 @@ npu_docs/lesson-07-supplement-axi-basics.md。
 用户追问微码从哪来、软件如何与硬件连接；已基于固定版 8216c22 深入解释并提交 `npu_docs/supplement-llm-microcode-generation-loading.md`。真实 GPT-2 block 测试采用 C++ 的 load_microcode→encode_instr→ucode_write→tick，写 gpt2_block_top 指令 SRAM B 口；不依赖 Python 汇编器生成的文件。例子 Q头 M=8 N=16 K=64，h0 hi=0901_0040_0010_0008、lo=0000_C400_C800_0403。Fetch SRAM A口读、Decode依ISA拆字段。gpt2顶层 program_end 等 fetch_done latch 和 all_idle，DMA由测试C++ shim处理，RTL top不同且微码写端关闭；CMake目标将SRAM0深度覆盖为65536。
 
 Python ucode_asm.py parse_line 将 key lower 而字段字典 M/N/K 大写，因此文本 M/N/K被静默忽略默认0，gen-tiny也经assemble；其hex每条4行32-bit，不自动适配128-bit SRAM一行一词。均为静态源码分析，未运行仿真或修改上游。答疑不改变课程主线/作业进度；用户未确认掌握，优先解答相关问题。
+
+
+
+## 2026-11-13 GPT-2 微码端到端路径专题
+
+用户要求从零基础沿 tb_gpt2_block.cpp → gpt2_block_top.sv → ucode_fetch.sv 阅读，讲模型到指令、C++/Python 语法及独立汇编器，并统计相关代码规模。专题讲义 `npu_docs/supplement-gpt2-ucode-end-to-end-walkthrough.md`；不将专题记为第10讲，已讲不等于掌握，优先回答具体问题。C++ 手工展开并静态推得117条指令，随机数据，不是预训练模型图的自动编译，不调用 Python。该 GPT-2 专用仿真顶层有真实计算引擎 RTL 和由 C++ 服务的 DMA shim，不应套用另一顶层的 stub 判断。Python 汇编器实测 M/N/K 被静默清零，默认模板 59 条、944 字节；这只是 Python 验证，未运行 RTL 仿真，RTL 时序为静态推导。gpt2_block_sim CMake 显式列 34 个源文件共 10528 物理行，但实例化的 gemm_ctrl.sv（761 行）未在显式清单，是否经搜索路径找到尚未构建验证。开放作业支线保持不变。
