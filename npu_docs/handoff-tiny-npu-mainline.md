@@ -110,3 +110,9 @@ Python ucode_asm.py parse_line 将 key lower 而字段字典 M/N/K 大写，因�
 ## 2026-11-13 GPT-2 微码端到端路径专题
 
 用户要求从零基础沿 tb_gpt2_block.cpp → gpt2_block_top.sv → ucode_fetch.sv 阅读，讲模型到指令、C++/Python 语法及独立汇编器，并统计相关代码规模。专题讲义 `npu_docs/supplement-gpt2-ucode-end-to-end-walkthrough.md`；不将专题记为第10讲，已讲不等于掌握，优先回答具体问题。C++ 手工展开并静态推得117条指令，随机数据，不是预训练模型图的自动编译，不调用 Python。该 GPT-2 专用仿真顶层有真实计算引擎 RTL 和由 C++ 服务的 DMA shim，不应套用另一顶层的 stub 判断。Python 汇编器实测 M/N/K 被静默清零，默认模板 59 条、944 字节；这只是 Python 验证，未运行 RTL 仿真，RTL 时序为静态推导。gpt2_block_sim CMake 显式列 34 个源文件共 10528 物理行，但实例化的 gemm_ctrl.sv（761 行）未在显式清单，是否经搜索路径找到尚未构建验证。开放作业支线保持不变。
+
+
+
+## 2026-11-13 七文件代码树与零基础精读专题
+
+用户要求逐个学习 tb_gpt2_block.cpp、gpt2_block_top.sv、ucode_fetch.sv、ucode_decode.sv、isa_pkg.sv、ucode_asm.py、CMakeLists.txt，从 C++/Python 零基础讲起并构建代码树。已整理入口 `npu_docs/supplement-gpt2-seven-files-00-code-tree.md` 与三份 C++、RTL、Python/CMake 分册。专题资料已整理并介绍整体代码树和 C++ 入口，**不等于用户已逐段学完**；用户当前问题优先，后续应按其理解逐段继续，不自动跳到第10讲。源码固定 8216c22；本专题没有进行 RTL 构建或仿真，时序为静态推导。前次另有 Python 汇编器样例检查。GPT2 仿真顶层 scoreboard 是 8 位，done[7:6] 固定 0；另一顶层的 6 位结论不适用于本顶层。C++ 测试不调用 Python，gemm_ctrl 未列在该 CMake 目标显式 SOURCES，能否被自动搜索到未构建核实。作业支线不动。
