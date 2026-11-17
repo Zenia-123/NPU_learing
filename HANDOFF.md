@@ -94,3 +94,8 @@ tiny-NPU 项目主线独立保留在 `npu_docs/`：第09讲 Scoreboard 与 Barri
 > 读取 `Zenia-123/NPU_learing` 的 `HANDOFF.md`，继续第三实验 `ucode_fetch`；先讲硬件结构和逐拍时序，由我亲自写代码和运行命令。
 
 
+
+
+## 2026-11-17 主线专题补充：FIFO 与仲裁
+
+新增 `npu_docs/supplement-fifo-arbitration.md`，用结构图、变量表、逐周期例子及教学代码解释 FIFO、握手、空满、固定优先级/轮询、反压保持、合流和读响应归属，并核对固定版 GPT-2 顶层的 busy 优先级 SRAM MUX。未运行 RTL 仿真、未修改上游或作业资产；讲义已整理不等于用户掌握。本专题不推进课程编号，当前问题优先，其余进度见主线交接。

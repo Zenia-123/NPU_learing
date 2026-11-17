@@ -116,3 +116,10 @@ Python ucode_asm.py parse_line 将 key lower 而字段字典 M/N/K 大写，因�
 ## 2026-11-13 七文件代码树与零基础精读专题
 
 用户要求逐个学习 tb_gpt2_block.cpp、gpt2_block_top.sv、ucode_fetch.sv、ucode_decode.sv、isa_pkg.sv、ucode_asm.py、CMakeLists.txt，从 C++/Python 零基础讲起并构建代码树。已整理入口 `npu_docs/supplement-gpt2-seven-files-00-code-tree.md` 与三份 C++、RTL、Python/CMake 分册。专题资料已整理并介绍整体代码树和 C++ 入口，**不等于用户已逐段学完**；用户当前问题优先，后续应按其理解逐段继续，不自动跳到第10讲。源码固定 8216c22；本专题没有进行 RTL 构建或仿真，时序为静态推导。前次另有 Python 汇编器样例检查。GPT2 仿真顶层 scoreboard 是 8 位，done[7:6] 固定 0；另一顶层的 6 位结论不适用于本顶层。C++ 测试不调用 Python，gemm_ctrl 未列在该 CMake 目标显式 SOURCES，能否被自动搜索到未构建核实。作业支线不动。
+
+
+## 2026-11-17 FIFO 与仲裁专题答疑
+
+用户要求详细讲解 FIFO 与仲裁并尽量用图说明。已整理 `npu_docs/supplement-fifo-arbitration.md`：同步 FIFO 的实体、变量/单位、valid/ready、环形指针、空满、同拍读写、边界反压、教学 RTL、FWFT/异步 FIFO 边界；固定优先级和轮询、等待时保持选择、FIFO 合流、事务粒度、响应归属与吞吐量。周期表为原理推导，未运行 RTL 仿真，未修改上游或作业代码。用户尚未确认掌握；本专题不算第10讲，保留七文件精读及其他主线进度，具体问题优先。
+
+核对固定版 8216c22 的 `sim/verilator/gpt2_block_top.sv` 第613～677行：SRAM0读写MUX按gm_busy、sm_busy、ln_busy、ge_busy、ve_busy、kv_busy优先选中引擎，最后为testbench。gm_busy=1且gm_rd_en=0时，即使Softmax有读请求，s0_a_en仍为0；这是busy所有者选择，不能说成逐请求轮询或具有FIFO/ready-grant重试。通用FIFO+轮询结构仅为教学方案。

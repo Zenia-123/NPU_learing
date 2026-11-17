@@ -34,6 +34,8 @@
 
 七文件代码树与零基础精读：[导航](supplement-gpt2-seven-files-00-code-tree.md)、[C++ 测试台](supplement-gpt2-seven-files-01-cpp.md)、[RTL 顶层与控制](supplement-gpt2-seven-files-02-rtl.md)、[Python 汇编器与 CMake](supplement-gpt2-seven-files-03-python-cmake.md)。资料已生成，不代表用户已学完。
 
+专题答疑：[FIFO 与仲裁：硬件结构、数据流与逐周期执行](supplement-fifo-arbitration.md)。覆盖环形队列、握手、固定优先级、轮询和 SRAM 共享；教学推导，未运行 RTL 仿真。
+
 ## 学习地图与历史资料
 
 - [完整学习指南](tiny-npu-study-guide.md)
